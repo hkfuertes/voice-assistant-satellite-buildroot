@@ -19,14 +19,14 @@ services:
       - "--snd-command"
       - "aplay -D plughw:CARD=seeed2micvoicec,DEV=0 -r 22050 -c 1 -f S16_LE -t raw"
       - "--wake-uri"
-      - "tcp://microwakeword:10400"
+      - "tcp://wakeword:10400"
       - "--wake-word-name"
       - "ok_nabu"
       # Leds
       # - "--event-uri"
       # - "tcp://127.0.0.1:10500"
       - "--debug"
-  microwakeword:
-    image: rhasspy/wyoming-microwakeword
+  wakeword:
+    image: rhasspy/wyoming-openwakeword
     ports:
       - 10400:10400
