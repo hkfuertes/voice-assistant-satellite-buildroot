@@ -1,0 +1,34 @@
+services:  
+  satellite:
+    build:
+      context: .
+      dockerfile: dockerfile.satellite
+    devices:
+      - /dev/snd:/dev/snd
+    group_add:
+      - audio
+    ports:
+      - "10700:10700"
+    command:
+      - "--name"
+      - "AssistPi"
+      - "--mic-command"
+      - "arecord -D plughw:CARD=seeed2micvoicec,DEV=0 -r 16000 -c 1 -f S16_LE -t raw"
+      - "--snd-command"
+      - "aplay -D plughw:CARD=seeed2micvoicec,DEV=0 -r 22050 -c 1 -f S16_LE -t raw"
+      - "--mic-auto-gain"
+      - "5"
+      - "--mic-noise-suppression"
+      - "2"
+      - "--wake-uri"
+      - "tcp://microwakeword:10400"
+      - "--wake-word-name"
+      - "ok_nabu"
+      # Leds
+      # - "--event-uri"
+      # - "tcp://127.0.0.1:10500"
+      - "--debug"
+  microwakeword:
+    image: rhasspy/wyoming-microwakeword
+    ports:
+      - 10400:10400
