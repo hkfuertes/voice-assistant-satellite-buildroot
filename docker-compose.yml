@@ -9,6 +9,7 @@ services:
       - audio
     ports:
       - "10700:10700"
+    restart: unless-stopped
     command:
       - "--name"
       - "AssistPi"
@@ -27,6 +28,7 @@ services:
       - "--debug"
   wakeword:
     image: rhasspy/wyoming-openwakeword
+    restart: unless-stopped
     ports:
       - 10400:10400
   leds:
@@ -38,6 +40,9 @@ services:
     devices:
       - /dev/gpiomem:/dev/gpiomem
     privileged: true
+    restart: unless-stopped
     command:
       - "--uri"
       - "tcp://0.0.0.0:10500"
+      - "--led-brightness"
+      - "10"
