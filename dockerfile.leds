@@ -1,4 +1,5 @@
 FROM python:3.11-slim-bookworm
+RUN apt-get update && apt-get install -y --no-install-recommends gcc git python3-dev && rm -rf /var/lib/apt/lists/*
 ADD https://github.com/rhasspy/wyoming-satellite.git#13bb0249310391bb7b7f6e109ddcc0d7d76223c1:examples /app/
 WORKDIR /app
 RUN pip3 install 'wyoming==1.5.2' gpiozero spidev
