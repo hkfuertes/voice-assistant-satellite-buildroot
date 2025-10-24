@@ -1,4 +1,4 @@
-FROM python:slim
+FROM python:3.11-slim-bookworm
 ADD https://github.com/rhasspy/wyoming-satellite.git#13bb0249310391bb7b7f6e109ddcc0d7d76223c1:examples /app/
 WORKDIR /app
 RUN pip3 install 'wyoming==1.5.2' gpiozero spidev
