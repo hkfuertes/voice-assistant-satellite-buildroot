@@ -17,55 +17,9 @@ curl -fsSL https://get.docker.com -o install-docker.sh
 sudo sh install-docker.sh
 ```
 ## Start Wyoming Satellite
-```dockerfile
-FROM python:slim
-RUN apt update && apt install -y alsa-utils caps && rm -rf /var/lib/apt/lists/*
-ADD https://github.com/rhasspy/wyoming-satellite.git#13bb0249310391bb7b7f6e109ddcc0d7d76223c1 /app/
-WORKDIR /app
-RUN script/setup
-EXPOSE 10700/tcp
-ENTRYPOINT ["/app/run"]
-```
-Make docker image first:
 ```shell
-docker build -t satellite .
-```
-
-Then run `docker compose`:
-```yaml
-services:  
-  satellite:
-    image: "satellite"
-    devices:
-      - /dev/snd:/dev/snd
-    group_add:
-      - audio
-    ports:
-      - "10700:10700"
-    command:
-      - "--name"
-      - "AssistPi"
-      - "--mic-command"
-      - "arecord -D plughw:CARD=seeed2micvoicec,DEV=0 -r 16000 -c 1 -f S16_LE -t raw"
-      - "--snd-command"
-      - "aplay -D plughw:CARD=seeed2micvoicec,DEV=0 -r 22050 -c 1 -f S16_LE -t raw"
-      - "--mic-auto-gain"
-      - "5"
-      - "--mic-noise-suppression"
-      - "2"
-      - "--wake-uri"
-      - "tcp://microwakeword:10400"
-      - "--wake-word-name"
-      - "ok_nabu"
-      # Leds
-      # - "--event-uri"
-      # - "tcp://127.0.0.1:10500"
-      - "--debug"
-  microwakeword:
-    image: rhasspy/wyoming-microwakeword
-    ports:
-      - 10400:10400
-
+git clone https://github.com/hkfuertes/assist_pi && cd assist_pi
+docker compose up -d
 ```
 _Still figuring this out..._
 
