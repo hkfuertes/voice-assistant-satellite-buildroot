@@ -17,7 +17,10 @@ git checkout 13bb0249310391bb7b7f6e109ddcc0d7d76223c1
 # Create venv and install dependencies
 python3 -m venv --system-site-packages /opt/wyoming/venv
 /opt/wyoming/venv/bin/pip3 install --upgrade pip wheel setuptools
-/opt/wyoming/venv/bin/pip3 install -f 'https://synesthesiam.github.io/prebuilt-apps/' -e '.[all]'
+
+# Force specific venv folder
+sed -i 's|_PROGRAM_DIR / ".venv"|Path("/opt/wyoming/venv")|' script/setup
+script/setup
 
 # Install GPIO/SPI dependencies for LEDs
 /opt/wyoming/venv/bin/pip3 install rpi-lgpio spidev
