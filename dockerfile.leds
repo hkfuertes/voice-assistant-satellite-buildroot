@@ -5,4 +5,4 @@ WORKDIR /app
 RUN pip3 install 'wyoming==1.5.2'
 RUN chmod +x /app/2mic_service.py
 EXPOSE 10500/tcp
-ENTRYPOINT ["/app/2mic_service.py"]
+ENTRYPOINT ["/usr/bin/env", "python3", "--system-site-packages", "/app/2mic_service.py"]
