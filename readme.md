@@ -1,15 +1,6 @@
-## Install respeaker drivers
-Current Trixie kernel for PI is 6.12:
+## Install drivers
 ``` shell
-  hkfuertes@AssistPi:~ $ uname -a
-  Linux AssistPi 6.12.47+rpt-rpi-v8 #1 SMP PREEMPT Debian 1:6.12.47-1+rpt1 (2025-09-16) aarch64 GNU/Linux
-```
-So we need the drivers for that, thankfully (@HinTak) is maintaining the drivers:
-```shell
-sudo apt install -y git
-git clone -b v6.12 https://github.com/HinTak/seeed-voicecard
-cd seeed-voicecard
-sudo ./install.sh
+echo "dtoverlay=wm8960-soundcard" >> /boot/firmware/config.txt
 sudo reboot
 ```
 ## Install docker
