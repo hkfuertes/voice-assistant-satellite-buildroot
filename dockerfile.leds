@@ -1,8 +1,7 @@
 FROM python:slim
-RUN apt update && apt install -y python3-spidev python3-gpiozero && rm -rf /var/lib/apt/lists/*
 ADD https://github.com/rhasspy/wyoming-satellite.git#13bb0249310391bb7b7f6e109ddcc0d7d76223c1:examples /app/
 WORKDIR /app
-RUN pip3 install 'wyoming==1.5.2'
+RUN pip3 install 'wyoming==1.5.2' gpiozero spidev
 RUN chmod +x /app/2mic_service.py
 EXPOSE 10500/tcp
 ENTRYPOINT ["/usr/bin/env", "python3", "--system-site-packages", "/app/2mic_service.py"]
