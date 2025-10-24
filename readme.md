@@ -6,6 +6,7 @@ Current Trixie kernel for PI is 6.12:
 ```
 So we need the drivers for that, thankfully (@HinTak) is maintaining the drivers:
 ```shell
+sudo apt install -y git
 git clone -b v6.12 https://github.com/HinTak/seeed-voicecard
 cd seeed-voicecard
 sudo ./install.sh
@@ -15,6 +16,8 @@ sudo reboot
 ```shell
 curl -fsSL https://get.docker.com -o install-docker.sh
 sudo sh install-docker.sh
+sudo systemctl enable docker
+sudo usermod -aG docker $USER
 ```
 ## Start Wyoming Satellite
 ```shell
