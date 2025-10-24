@@ -5,10 +5,10 @@ sudo reboot
 ```
 ## Install docker
 ```shell
-curl -fsSL https://get.docker.com -o install-docker.sh
-sudo sh install-docker.sh
+curl -fsSL https://get.docker.com | sudo sh -
 sudo systemctl enable docker
 sudo usermod -aG docker $USER
+sudo reboot
 ```
 ## Start Wyoming Satellite
 ```shell
