@@ -39,13 +39,8 @@ sudo reboot
 ```
 ## Services
 ```shell
-# Servicio 1: openWakeWord
 sudo nano /etc/systemd/system/wyoming-openwakeword.service
-
-# Servicio 2: LEDs
 sudo nano /etc/systemd/system/wyoming-2mic-leds.service
-
-# Servicio 3: Satellite
 sudo nano /etc/systemd/system/wyoming-satellite.service
 ```
 
