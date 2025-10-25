@@ -20,8 +20,8 @@ script/setup
 
 # Install OpenWakeWord
 cd /opt/wyoming
-git clone https://github.com/rhasspy/wyoming-openwakeword.git openwakeword
-cd openwakeword
+git clone https://github.com/rhasspy/wyoming-openwakeword.git
+cd wyoming-openwakeword
 script/setup
 
 # Configure ReSpeaker 2-Mic HAT
@@ -77,8 +77,8 @@ Description=Wyoming OpenWakeWord
 
 [Service]
 Type=simple
-ExecStart=/opt/wyoming/wakeword/.venv/bin/python3 /opt/wyoming/openwakeword/script/run --uri 'tcp://127.0.0.1:10400'
-WorkingDirectory=/opt/wyoming/openwakeword
+ExecStart=/opt/wyoming/wakeword/.venv/bin/python3 /opt/wyoming/wyoming-openwakeword/script/run --uri 'tcp://127.0.0.1:10400'
+WorkingDirectory=/opt/wyoming/wyoming-openwakeword
 Restart=always
 RestartSec=1
 
