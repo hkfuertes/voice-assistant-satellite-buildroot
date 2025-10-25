@@ -28,6 +28,7 @@ cd wyoming-openwakeword
 
 # Force specific venv folder
 sed -i 's|_PROGRAM_DIR / ".venv"|Path("/opt/wyoming/venv")|' script/setup
+sed -i '/^builder.create(_VENV_DIR)/s/^/# /' script/setup
 script/setup
 
 # Configure ReSpeaker 2-Mic HAT
