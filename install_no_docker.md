@@ -37,9 +37,19 @@ sudo sed -i '/dtoverlay=vc4-fkms-v3d/s/^/#/' /boot/firmware/config.txt
 # Reboot to load drivers
 sudo reboot
 ```
+## Services
+```shell
+# Servicio 1: openWakeWord
+sudo nano /etc/systemd/system/wyoming-openwakeword.service
 
-## Satellite Service
+# Servicio 2: LEDs
+sudo nano /etc/systemd/system/wyoming-2mic-leds.service
 
+# Servicio 3: Satellite
+sudo nano /etc/systemd/system/wyoming-satellite.service
+```
+
+### Satellite Service
 ```ini
 [Unit]
 Description=Wyoming Satellite
@@ -65,8 +75,7 @@ RestartSec=1
 WantedBy=default.target
 ```
 
-## OpenWakeWord Service
-
+### OpenWakeWord Service
 ```ini
 [Unit]
 Description=Wyoming OpenWakeWord
@@ -82,8 +91,7 @@ RestartSec=1
 WantedBy=default.target
 ```
 
-## LED Service
-
+### LED Service
 ```ini
 [Unit]
 Description=2Mic LEDs
