@@ -20,6 +20,7 @@ script/setup
 
 # Install GPIO/SPI dependencies for LEDs
 /opt/wyoming/satellite/.venv/bin/pip3 install rpi-lgpio spidev gpiozero
+sudo echo "dtparam=spi=on" >> /boot/firmware/config.txt
 
 # Install OpenWakeWord
 cd /opt/wyoming
