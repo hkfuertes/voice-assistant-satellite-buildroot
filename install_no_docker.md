@@ -2,7 +2,7 @@
 
 ```shell
 sudo apt update
-sudo apt install -y git alsa-utils caps gcc git python3-dev python3-venv libopenblas-dev swig libgpiod-dev
+sudo apt install -y git alsa-utils caps gcc git python3-dev python3-venv libopenblas-dev swig libgpiod-dev liblgpio-dev
 
 # Create system directory
 sudo mkdir -p /opt/wyoming
