@@ -2,7 +2,6 @@
 # Configure ReSpeaker 2-Mic HAT
 sudo bash -c 'cat >> /boot/firmware/config.txt' << 'EOF'
 dtparam=i2c_arm=on
-dtparam=spi=on
 dtoverlay=wm8960-soundcard
 EOF
 
