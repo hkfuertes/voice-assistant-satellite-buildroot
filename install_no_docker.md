@@ -10,18 +10,18 @@ sudo chown $USER:$USER /opt/wyoming
 
 # Clone Wyoming Satellite
 cd /opt/wyoming
-git clone https://github.com/rhasspy/wyoming-satellite.git
-cd wyoming-satellite
+git clone https://github.com/rhasspy/wyoming-satellite.git satellite
+cd satellite
 git checkout 13bb0249310391bb7b7f6e109ddcc0d7d76223c1
 script/setup
 
 # Install GPIO/SPI dependencies for LEDs
-/opt/wyoming/venv/bin/pip3 install rpi-lgpio spidev
+/opt/wyoming/satellite/.venv/bin/pip3 install rpi-lgpio spidev
 
 # Install OpenWakeWord
 cd /opt/wyoming
 git clone https://github.com/rhasspy/wyoming-openwakeword.git
-cd wyoming-openwakeword
+cd wakeword
 script/setup
 
 # Configure ReSpeaker 2-Mic HAT
@@ -49,7 +49,7 @@ Requires=wyoming-openwakeword.service 2mic_leds.service
 
 [Service]
 Type=simple
-ExecStart=/opt/wyoming/venv/bin/python3 /opt/wyoming/wyoming-satellite/script/run \
+ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/wyoming-satellite/script/run \
   --name 'my satellite' \
   --uri 'tcp://0.0.0.0:10700' \
   --mic-command 'arecord -D plughw:CARD=seeed2micvoicec,DEV=0 -r 16000 -c 1 -f S16_LE -t raw' \
@@ -57,7 +57,7 @@ ExecStart=/opt/wyoming/venv/bin/python3 /opt/wyoming/wyoming-satellite/script/ru
   --wake-uri 'tcp://127.0.0.1:10400' \
   --wake-word-name 'ok_nabu' \
   --event-uri 'tcp://127.0.0.1:10500'
-WorkingDirectory=/opt/wyoming/wyoming-satellite
+WorkingDirectory=/opt/wyoming/satellite
 Restart=always
 RestartSec=1
 
@@ -73,7 +73,7 @@ Description=Wyoming OpenWakeWord
 
 [Service]
 Type=simple
-ExecStart=/opt/wyoming/wyoming-openwakeword/.venv/bin/python3 /opt/wyoming/wyoming-openwakeword/script/run --uri 'tcp://127.0.0.1:10400'
+ExecStart=/opt/wyoming/wakeword/.venv/bin/python3 /opt/wyoming/wyoming-openwakeword/script/run --uri 'tcp://127.0.0.1:10400'
 WorkingDirectory=/opt/wyoming/wyoming-openwakeword
 Restart=always
 RestartSec=1
@@ -90,7 +90,7 @@ Description=2Mic LEDs
 
 [Service]
 Type=simple
-ExecStart=/opt/wyoming/venv/bin/python3 /opt/wyoming/wyoming-satellite/examples/2mic_service.py --uri 'tcp://127.0.0.1:10500'
+ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/wyoming-satellite/examples/2mic_service.py --uri 'tcp://127.0.0.1:10500'
 WorkingDirectory=/opt/wyoming/wyoming-satellite/examples
 Restart=always
 RestartSec=1
