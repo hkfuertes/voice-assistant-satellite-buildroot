@@ -28,7 +28,7 @@ cd wyoming-openwakeword
 script/setup
 
 # Configure ReSpeaker 2-Mic HAT
-sudo nano /boot/firmware/usercfg.txt # or config.txt
+sudo nano /boot/firmware/config.txt
 # Add these lines:
 # dtparam=i2c_arm=on
 # dtparam=spi=on
