@@ -20,9 +20,12 @@ script/setup
 
 # Install OpenWakeWord
 cd /opt/wyoming
-git clone https://github.com/rhasspy/wyoming-openwakeword.git
-cd wyoming-openwakeword
+git clone https://github.com/rhasspy/wyoming-openwakeword.git openwakeword
+cd openwakeword
 script/setup
+
+# Force module name no matter the folder installed
+sed -i 's/_MODULE = _PROGRAM_DIR.name.replace("-", "_")/_MODULE = "wyoming_openwakeword"/' script/run
 
 # Configure ReSpeaker 2-Mic HAT
 sudo bash -c 'cat >> /boot/firmware/config.txt' << 'EOF'
@@ -54,7 +57,7 @@ Requires=wyoming-openwakeword.service wyoming-2mic-leds.service
 
 [Service]
 Type=simple
-ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/wyoming-satellite/script/run \
+ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/satellite/script/run \
   --name 'AssistPi' \
   --uri 'tcp://0.0.0.0:10700' \
   --mic-command 'arecord -D plughw:CARD=wm8960soundcard,DEV=0 -r 16000 -c 1 -f S16_LE -t raw' \
@@ -62,7 +65,7 @@ ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/wyoming-satellit
   --wake-uri 'tcp://127.0.0.1:10400' \
   --wake-word-name 'ok_nabu' \
   --event-uri 'tcp://127.0.0.1:10500'
-WorkingDirectory=/opt/wyoming/wyoming-satellite
+WorkingDirectory=/opt/wyoming/satellite
 Restart=always
 RestartSec=1
 
@@ -77,8 +80,8 @@ Description=Wyoming OpenWakeWord
 
 [Service]
 Type=simple
-ExecStart=/opt/wyoming/wakeword/.venv/bin/python3 /opt/wyoming/wyoming-openwakeword/script/run --uri 'tcp://127.0.0.1:10400'
-WorkingDirectory=/opt/wyoming/wyoming-openwakeword
+ExecStart=/opt/wyoming/wakeword/.venv/bin/python3 /opt/wyoming/openwakeword/script/run --uri 'tcp://127.0.0.1:10400'
+WorkingDirectory=/opt/wyoming/openwakeword
 Restart=always
 RestartSec=1
 
