@@ -1,3 +1,6 @@
+## Install drivers
+This guide installs respeaker v1 drivers.
+### Configure overlays in `config.txt`
 ```shell
 # Configure ReSpeaker 2-Mic HAT
 sudo bash -c 'cat >> /boot/firmware/config.txt' << 'EOF'
@@ -7,9 +10,13 @@ EOF
 
 # Disable HDMI output
 sudo sed -i '/dtoverlay=vc4-fkms-v3d/s/^/#/' /boot/firmware/config.txt
+```
 
-# Alsa mixer default configs
-# cp asound.conf /etc/asound.conf
+### Setup Alsa
+```shell
+sudo apt install -y alsa-utils
+# apk add alsa-utils
+
 sudo bash -c 'cat > /etc/asound.conf' << 'EOF'
 pcm.!default {
     type asym
@@ -29,7 +36,6 @@ ctl.!default {
 }
 EOF
 
-# cp setup-respeaker-v1.sh /usr/local/bin/setup-respeaker-v1.sh
 sudo bash -c 'cat > /usr/local/bin/setup-respeaker-v1.sh' << 'EOF'
 #!/bin/bash
 # ReSpeaker 2-Mic HAT v1 ALSA configuration
@@ -64,9 +70,9 @@ echo "ReSpeaker 2-Mic HAT v1 configured"
 EOF
 
 sudo chmod +x /usr/local/bin/setup-respeaker-v1.sh
-
-# Install Service
-# cp respeaker-setup.service /etc/systemd/system/respeaker-setup.service
+```
+## Install Service (systemd)
+```shell
 sudo bash -c 'cat > /etc/systemd/system/respeaker-setup.service' << 'EOF'
 [Unit]
 Description=ReSpeaker 2-Mic HAT v1 ALSA Setup
@@ -84,4 +90,26 @@ EOF
 
 sudo systemctl daemon-reload
 sudo systemctl enable respeaker-setup.service
+```
+
+## Install `init.d` Script
+```shell
+cat > /etc/init.d/respeaker-setup << 'EOF'
+#!/sbin/openrc-run
+
+description="ReSpeaker 2-Mic HAT v1 ALSA Setup"
+depend() {
+    need localmount
+    after alsasound
+}
+
+start() {
+    ebegin "Configuring ReSpeaker 2-Mic HAT v1"
+    /usr/local/bin/setup-respeaker-v1.sh
+    eend $?
+}
+EOF
+
+chmod +x /etc/init.d/respeaker-setup
+rc-update add respeaker-setup default
 ```
