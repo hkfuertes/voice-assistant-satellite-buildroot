@@ -25,6 +25,9 @@ script/setup
 cd /opt/wyoming
 git clone https://github.com/rhasspy/wyoming-openwakeword.git
 cd wyoming-openwakeword
+
+# Force specific venv folder
+sed -i 's|_PROGRAM_DIR / ".venv"|Path("/opt/wyoming/venv")|' script/setup
 script/setup
 
 # Configure ReSpeaker 2-Mic HAT
