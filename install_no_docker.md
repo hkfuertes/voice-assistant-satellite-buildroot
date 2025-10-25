@@ -20,7 +20,7 @@ script/setup
 
 # Install OpenWakeWord
 cd /opt/wyoming
-git clone https://github.com/rhasspy/wyoming-openwakeword.git
+git clone https://github.com/rhasspy/wyoming-openwakeword.git wakeword
 cd wakeword
 script/setup
 
