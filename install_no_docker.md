@@ -96,7 +96,9 @@ Description=2Mic LEDs
 
 [Service]
 Type=simple
-ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/satellite/examples/2mic_service.py --uri 'tcp://127.0.0.1:10500'
+ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/satellite/examples/2mic_service.py \
+            --uri 'tcp://127.0.0.1:10500' \
+            --led-brightness 10
 WorkingDirectory=/opt/wyoming/satellite/examples
 Restart=always
 RestartSec=1
