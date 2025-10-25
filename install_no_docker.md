@@ -15,7 +15,6 @@ cd wyoming-satellite
 git checkout 13bb0249310391bb7b7f6e109ddcc0d7d76223c1
 
 # Force specific venv folder
-rm -rf /opt/wyoming/venv
 sed -i 's|_PROGRAM_DIR / ".venv"|Path("/opt/wyoming/venv")|' script/setup
 script/setup
 
