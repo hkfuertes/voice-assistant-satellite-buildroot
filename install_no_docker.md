@@ -54,7 +54,7 @@ Requires=wyoming-openwakeword.service 2mic_leds.service
 
 [Service]
 Type=simple
-ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/wyoming-satellite/script/run \
+ExecStart=/opt/wyoming/satellite/.venv/bin/python3 script/run \
   --name 'my satellite' \
   --uri 'tcp://0.0.0.0:10700' \
   --mic-command 'arecord -D plughw:CARD=seeed2micvoicec,DEV=0 -r 16000 -c 1 -f S16_LE -t raw' \
