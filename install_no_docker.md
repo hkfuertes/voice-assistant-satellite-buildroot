@@ -13,9 +13,6 @@ cd /opt/wyoming
 git clone https://github.com/rhasspy/wyoming-satellite.git
 cd wyoming-satellite
 git checkout 13bb0249310391bb7b7f6e109ddcc0d7d76223c1
-
-# Force specific venv folder
-sed -i 's|_PROGRAM_DIR / ".venv"|Path("/opt/wyoming/venv")|' script/setup
 script/setup
 
 # Install GPIO/SPI dependencies for LEDs
@@ -25,18 +22,17 @@ script/setup
 cd /opt/wyoming
 git clone https://github.com/rhasspy/wyoming-openwakeword.git
 cd wyoming-openwakeword
-
-# Force same venv
-sed -i 's|_PROGRAM_DIR / ".venv"|Path("/opt/wyoming/venv")|' script/setup
-sed -i '/^builder.create(_VENV_DIR)/s/^/# /' script/setup
 script/setup
 
 # Configure ReSpeaker 2-Mic HAT
-sudo nano /boot/firmware/config.txt
-# Add these lines:
-# dtparam=i2c_arm=on
-# dtparam=spi=on
-# dtoverlay=wm8960-soundcard
+sudo bash -c 'cat >> /boot/firmware/config.txt' << 'EOF'
+dtparam=i2c_arm=on
+dtparam=spi=on
+dtoverlay=wm8960-soundcard
+EOF
+
+# Disable HDMI output
+sudo sed -i '/dtoverlay=vc4-fkms-v3d/s/^/#/' /boot/firmware/config.txt
 
 # Reboot to load drivers
 sudo reboot
