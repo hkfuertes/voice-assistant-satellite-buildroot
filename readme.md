@@ -1,5 +1,5 @@
 ## Respeaker Drivers
-Follow this [guide](respeaker/readme.md).
+Follow this [guide](respeaker_v1.md).
 
 ## Wyoming Satellite
 
@@ -51,8 +51,8 @@ Type=simple
 ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/satellite/script/run \
   --name 'AssistPi' \
   --uri 'tcp://0.0.0.0:10700' \
-  --mic-command 'arecord -D plughw:CARD=seeed2micvoicec,DEV=0 -r 16000 -c 1 -f S16_LE -t raw' \
-  --snd-command 'aplay -D plughw:CARD=seeed2micvoicec,DEV=0 -r 22050 -c 1 -f S16_LE -t raw' \
+  --mic-command 'arecord -D plughw:CARD=wm8960soundcard,DEV=0 -r 16000 -c 1 -f S16_LE -t raw' \
+  --snd-command 'aplay -D plughw:CARD=wm8960soundcard,DEV=0 -r 22050 -c 1 -f S16_LE -t raw' \
   --wake-uri 'tcp://127.0.0.1:10400' \
   --wake-word-name 'ok_nabu' \
   --event-uri 'tcp://127.0.0.1:10500'
