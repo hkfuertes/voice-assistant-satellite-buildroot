@@ -10,8 +10,8 @@ sudo chown $USER:$USER /opt/wyoming
 
 # Clone Wyoming Satellite
 cd /opt/wyoming
-git clone https://github.com/rhasspy/wyoming-satellite.git
-cd wyoming-satellite
+git clone https://github.com/rhasspy/wyoming-satellite.git satellite
+cd satellite
 git checkout 13bb0249310391bb7b7f6e109ddcc0d7d76223c1
 script/setup
 
