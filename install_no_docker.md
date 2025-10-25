@@ -78,7 +78,7 @@ Description=Wyoming OpenWakeWord
 [Service]
 Type=simple
 ExecStart=/opt/wyoming/wakeword/.venv/bin/python3 script/run --uri 'tcp://127.0.0.1:10400'
-WorkingDirectory=/opt/wyoming/akeword
+WorkingDirectory=/opt/wyoming/wakeword
 Restart=always
 RestartSec=1
 
