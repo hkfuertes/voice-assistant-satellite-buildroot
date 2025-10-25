@@ -20,8 +20,8 @@ script/setup
 
 # Install OpenWakeWord
 cd /opt/wyoming
-git clone https://github.com/rhasspy/wyoming-openwakeword.git wakeword
-cd wakeword
+git clone https://github.com/rhasspy/wyoming-openwakeword.git openwakeword
+cd openwakeword
 script/setup
 
 # Configure ReSpeaker 2-Mic HAT
