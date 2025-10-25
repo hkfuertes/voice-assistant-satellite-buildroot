@@ -40,7 +40,8 @@ echo "==> Bootstrapping Alpine Linux..."
     python3 py3-pip py3-virtualenv git \
     gcc g++ make musl-dev python3-dev \
     libgpiod-dev swig openblas-dev linux-headers \
-    openssh-server chrony nano
+    openssh-server chrony nano \
+    parted e2fsprogs-extra
 
 echo "==> Setting up QEMU..."
 mkdir -p "$ROOTFS/usr/bin"
@@ -114,6 +115,23 @@ alsactl store 2>/dev/null
 EOF
 chmod +x "$ROOTFS/usr/local/bin/setup-respeaker-v1.sh"
 
+cat > "$ROOTFS/usr/local/bin/expand-rootfs.sh" <<'EOF'
+#!/bin/sh
+set -e
+ROOT_PART="/dev/mmcblk0p2"
+ROOT_DEV="/dev/mmcblk0"
+
+echo "Expanding root partition..."
+parted -s "$ROOT_DEV" resizepart 2 100%
+resize2fs "$ROOT_PART"
+
+rc-update del expand-rootfs boot
+rm -f /etc/init.d/expand-rootfs
+rm -f /usr/local/bin/expand-rootfs.sh
+echo "Root filesystem expanded successfully"
+EOF
+chmod +x "$ROOTFS/usr/local/bin/expand-rootfs.sh"
+
 cat > "$ROOTFS/etc/asound.conf" <<'EOF'
 pcm.!default {
     type asym
@@ -145,6 +163,22 @@ modules=loop,squashfs,sd-mod,usb-storage quiet console=tty1
 EOF
 
 echo "==> Creating services..."
+cat > "$ROOTFS/etc/init.d/expand-rootfs" <<'EOF'
+#!/sbin/openrc-run
+
+description="Expand root filesystem on first boot"
+depend() {
+    need localmount
+}
+
+start() {
+    ebegin "Expanding root filesystem"
+    /usr/local/bin/expand-rootfs.sh
+    eend $?
+}
+EOF
+chmod +x "$ROOTFS/etc/init.d/expand-rootfs"
+
 cat > "$ROOTFS/etc/init.d/wifi-setup" <<'EOF'
 #!/sbin/openrc-run
 description="Setup WiFi from boot partition"
@@ -251,6 +285,7 @@ rc-update add sysctl boot
 rc-update add bootmisc boot
 rc-update add syslog boot
 rc-update add networking boot
+rc-update add expand-rootfs boot
 rc-update add iwd default
 rc-update add chronyd default
 rc-update add sshd default
@@ -297,4 +332,5 @@ echo "==================================================================="
 echo "DONE - Wyoming Satellite PRE-INSTALLED"
 echo "Rootfs: $ROOTFS"
 echo "WiFi: Copy *.psk files to /boot with SSID as filename"
+echo "First boot will auto-expand rootfs to use full SD card"
 echo "==================================================================="
