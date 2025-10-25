@@ -16,7 +16,7 @@ git checkout 13bb0249310391bb7b7f6e109ddcc0d7d76223c1
 script/setup
 
 # Install GPIO/SPI dependencies for LEDs
-/opt/wyoming/satellite/.venv/bin/pip3 install rpi-lgpio spidev
+/opt/wyoming/satellite/.venv/bin/pip3 install rpi-lgpio spidev gpiozero
 
 # Install OpenWakeWord
 cd /opt/wyoming
