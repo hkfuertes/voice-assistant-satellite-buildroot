@@ -77,8 +77,8 @@ Description=Wyoming OpenWakeWord
 
 [Service]
 Type=simple
-ExecStart=/opt/wyoming/wakeword/.venv/bin/python3 /opt/wyoming/wyoming-openwakeword/script/run --uri 'tcp://127.0.0.1:10400'
-WorkingDirectory=/opt/wyoming/wyoming-openwakeword
+ExecStart=/opt/wyoming/wakeword/.venv/bin/python3 script/run --uri 'tcp://127.0.0.1:10400'
+WorkingDirectory=/opt/wyoming/akeword
 Restart=always
 RestartSec=1
 
@@ -93,8 +93,8 @@ Description=2Mic LEDs
 
 [Service]
 Type=simple
-ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/wyoming-satellite/examples/2mic_service.py --uri 'tcp://127.0.0.1:10500'
-WorkingDirectory=/opt/wyoming/wyoming-satellite/examples
+ExecStart=/opt/wyoming/satellite/.venv/bin/python3 2mic_service.py --uri 'tcp://127.0.0.1:10500'
+WorkingDirectory=/opt/wyoming/satellite/examples
 Restart=always
 RestartSec=1
 
