@@ -1,25 +1,11 @@
+## Respeaker Drivers
+Follow this [guide](respeaker/readme.md).
+
 ## Wyoming Satellite
 
 ```shell
 sudo apt update
 sudo apt install -y git alsa-utils caps gcc git python3-dev python3-venv libopenblas-dev swig libgpiod-dev liblgpio-dev
-
-# Respeaker drivers
-git clone -b v6.12 https://github.com/HinTak/seeed-voicecard
-cd seeed-voicecard
-sudo ./install.sh
-
-# ... or ...
-curl https://raw.githubusercontent.com/Seeed-Studio/seeed-linux-dtoverlays/refs/heads/master/overlays/rpi/respeaker-2mic-v2_0-overlay.dts -o respeaker-2mic-v2_0-overlay.dts
-dtc -I dts respeaker-2mic-v2_0-overlay.dts -o respeaker-2mic-v2_0-overlay.dtbo
-sudo dtoverlay respeaker-2mic-v2_0-overlay.dtbo
-sudo cp respeaker-2mic-v2_0-overlay.dtbo /boot/firmware/overlays
-
-# dtoverlay=respeaker-2mic-v2_0-overlay
-# dtoverlay=i2s-mmap
-
-# ... or ...
-# dtoverlay=wm8960-soundcard
 
 # Create system directory
 sudo mkdir -p /opt/wyoming
@@ -43,19 +29,6 @@ script/setup
 
 # Force module name no matter the folder installed
 sed -i 's/_MODULE = _PROGRAM_DIR.name.replace("-", "_")/_MODULE = "wyoming_openwakeword"/' script/run
-
-# Configure ReSpeaker 2-Mic HAT
-sudo bash -c 'cat >> /boot/firmware/config.txt' << 'EOF'
-dtparam=i2c_arm=on
-dtparam=spi=on
-dtoverlay=wm8960-soundcard
-EOF
-
-# Disable HDMI output
-sudo sed -i '/dtoverlay=vc4-fkms-v3d/s/^/#/' /boot/firmware/config.txt
-
-# Reboot to load drivers
-sudo reboot
 ```
 ## Services
 ```shell
@@ -77,8 +50,8 @@ Type=simple
 ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/satellite/script/run \
   --name 'AssistPi' \
   --uri 'tcp://0.0.0.0:10700' \
-  --mic-command 'arecord -D plughw:CARD=wm8960soundcard,DEV=0 -r 16000 -c 1 -f S16_LE -t raw' \
-  --snd-command 'aplay -D plughw:CARD=wm8960soundcard,DEV=0 -r 22050 -c 1 -f S16_LE -t raw' \
+  --mic-command 'arecord -D plughw:CARD=seeed2micvoicec,DEV=0 -r 16000 -c 1 -f S16_LE -t raw' \
+  --snd-command 'aplay -D plughw:CARD=seeed2micvoicec,DEV=0 -r 22050 -c 1 -f S16_LE -t raw' \
   --wake-uri 'tcp://127.0.0.1:10400' \
   --wake-word-name 'ok_nabu' \
   --event-uri 'tcp://127.0.0.1:10500'
