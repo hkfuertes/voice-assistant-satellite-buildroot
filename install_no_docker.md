@@ -19,6 +19,7 @@ python3 -m venv --system-site-packages /opt/wyoming/venv
 /opt/wyoming/venv/bin/pip3 install --upgrade pip wheel setuptools
 
 # Force specific venv folder
+rm -rf /opt/wyoming/venv
 sed -i 's|_PROGRAM_DIR / ".venv"|Path("/opt/wyoming/venv")|' script/setup
 script/setup
 
