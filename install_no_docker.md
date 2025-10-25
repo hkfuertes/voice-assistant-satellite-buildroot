@@ -10,8 +10,8 @@ sudo chown $USER:$USER /opt/wyoming
 
 # Clone Wyoming Satellite
 cd /opt/wyoming
-git clone https://github.com/rhasspy/wyoming-satellite.git satellite
-cd satellite
+git clone https://github.com/rhasspy/wyoming-satellite.git
+cd wyoming-satellite
 git checkout 13bb0249310391bb7b7f6e109ddcc0d7d76223c1
 script/setup
 
@@ -54,7 +54,7 @@ Requires=wyoming-openwakeword.service wyoming-2mic-leds.service
 
 [Service]
 Type=simple
-ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/satellite/script/run \
+ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/wyoming-satellite/script/run \
   --name 'AssistPi' \
   --uri 'tcp://0.0.0.0:10700' \
   --mic-command 'arecord -D plughw:CARD=wm8960soundcard,DEV=0 -r 16000 -c 1 -f S16_LE -t raw' \
@@ -62,7 +62,7 @@ ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/satellite/script
   --wake-uri 'tcp://127.0.0.1:10400' \
   --wake-word-name 'ok_nabu' \
   --event-uri 'tcp://127.0.0.1:10500'
-WorkingDirectory=/opt/wyoming/satellite
+WorkingDirectory=/opt/wyoming/wyoming-satellite
 Restart=always
 RestartSec=1
 
