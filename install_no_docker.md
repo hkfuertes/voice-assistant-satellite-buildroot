@@ -49,13 +49,13 @@ sudo nano /etc/systemd/system/wyoming-satellite.service
 [Unit]
 Description=Wyoming Satellite
 Wants=network-online.target
-After=network-online.target wyoming-openwakeword.service 2mic_leds.service
-Requires=wyoming-openwakeword.service 2mic_leds.service
+After=network-online.target wyoming-openwakeword.service wyoming-2mic-leds.service
+Requires=wyoming-openwakeword.service wyoming-2mic-leds.service
 
 [Service]
 Type=simple
-ExecStart=/opt/wyoming/satellite/.venv/bin/python3 script/run \
-  --name 'my satellite' \
+ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/satellite/script/run \
+  --name 'AssistPi' \
   --uri 'tcp://0.0.0.0:10700' \
   --mic-command 'arecord -D plughw:CARD=wm8960soundcard,DEV=0 -r 16000 -c 1 -f S16_LE -t raw' \
   --snd-command 'aplay -D plughw:CARD=wm8960soundcard,DEV=0 -r 22050 -c 1 -f S16_LE -t raw' \
@@ -77,7 +77,7 @@ Description=Wyoming OpenWakeWord
 
 [Service]
 Type=simple
-ExecStart=/opt/wyoming/wakeword/.venv/bin/python3 script/run --uri 'tcp://127.0.0.1:10400'
+ExecStart=/opt/wyoming/wakeword/.venv/bin/python3 /opt/wyoming/wakeword/script/run --uri 'tcp://127.0.0.1:10400'
 WorkingDirectory=/opt/wyoming/wakeword
 Restart=always
 RestartSec=1
@@ -93,7 +93,7 @@ Description=2Mic LEDs
 
 [Service]
 Type=simple
-ExecStart=/opt/wyoming/satellite/.venv/bin/python3 2mic_service.py --uri 'tcp://127.0.0.1:10500'
+ExecStart=/opt/wyoming/satellite/.venv/bin/python3 /opt/wyoming/satellite/examples/2mic_service.py --uri 'tcp://127.0.0.1:10500'
 WorkingDirectory=/opt/wyoming/satellite/examples
 Restart=always
 RestartSec=1
