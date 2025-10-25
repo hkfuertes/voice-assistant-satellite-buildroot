@@ -14,10 +14,6 @@ git clone https://github.com/rhasspy/wyoming-satellite.git
 cd wyoming-satellite
 git checkout 13bb0249310391bb7b7f6e109ddcc0d7d76223c1
 
-# Create venv and install dependencies
-python3 -m venv --system-site-packages /opt/wyoming/venv
-/opt/wyoming/venv/bin/pip3 install --upgrade pip wheel setuptools
-
 # Force specific venv folder
 rm -rf /opt/wyoming/venv
 sed -i 's|_PROGRAM_DIR / ".venv"|Path("/opt/wyoming/venv")|' script/setup
