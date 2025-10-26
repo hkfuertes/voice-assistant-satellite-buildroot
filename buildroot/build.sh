@@ -7,3 +7,7 @@ make savedefconfig BR2_DEFCONFIG=/repo/diffconfig
 make
 
 cp output/images/sdcard.img /repo/
+
+
+# --------------------- #
+sudo modprobe cdc_acm
