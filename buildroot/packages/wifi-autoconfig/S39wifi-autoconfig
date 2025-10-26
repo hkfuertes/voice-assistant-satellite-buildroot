@@ -6,6 +6,9 @@ case "$1" in
   start)
     echo "Configuring WiFi from /boot partition..."
     
+    # Create /boot directory if it doesn't exist
+    mkdir -p /boot
+    
     # Check if /boot is already mounted
     if ! mountpoint -q /boot 2>/dev/null; then
       echo "Mounting /boot partition..."
@@ -27,56 +30,37 @@ case "$1" in
       mkdir -p /var/run/wpa_supplicant
       cp /boot/wpa_supplicant.conf /etc/wpa_supplicant.conf
       chmod 600 /etc/wpa_supplicant.conf
-      echo "WiFi configuration copied"
       
       # Unmount /boot if we mounted it
       if [ $BOOT_MOUNTED -eq 1 ]; then
-        echo "Unmounting /boot..."
         umount /boot
       fi
       
-      # Bring up wlan0
+      # Bring up wlan0 and connect
       ip link set wlan0 up
       sleep 1
-      
-      # Start wpa_supplicant
-      echo "Starting wpa_supplicant..."
       wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant.conf
-      
-      # Wait for connection
       sleep 5
-      
-      # Request IP address
-      echo "Requesting IP address..."
       udhcpc -i wlan0 -b -q
       
       echo "WiFi configuration complete"
     else
       echo "No wpa_supplicant.conf found in /boot"
       
-      # Unmount /boot if we mounted it
       if [ $BOOT_MOUNTED -eq 1 ]; then
-        echo "Unmounting /boot..."
         umount /boot
       fi
     fi
     ;;
     
   stop)
-    echo "Stopping WiFi services..."
     killall wpa_supplicant 2>/dev/null
     killall udhcpc 2>/dev/null
     ip link set wlan0 down 2>/dev/null
     ;;
     
-  restart)
-    $0 stop
-    sleep 2
-    $0 start
-    ;;
-    
   *)
-    echo "Usage: $0 {start|stop|restart}"
+    echo "Usage: $0 {start|stop}"
     exit 1
 esac
 

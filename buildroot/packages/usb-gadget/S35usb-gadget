@@ -1,24 +1,119 @@
 #!/bin/sh
 
-DAEMON="usb-gadget"
-DAEMON_PATH="/usr/sbin/usb-gadget"
+GADGET_PATH="/sys/kernel/config/usb_gadget/g1"
+
+get_serial() {
+    if [ -f /proc/cpuinfo ]; then
+        grep Serial /proc/cpuinfo | cut -d' ' -f2 | cut -c9-16
+    else
+        echo "0123456789abcdef"
+    fi
+}
 
 start() {
-	printf 'Starting %s: ' "$DAEMON"
-	$DAEMON_PATH start >/dev/null 2>&1
-	[ $? -eq 0 ] && echo "OK" || echo "FAIL"
+    printf 'Starting USB gadget (ACM): '
+    
+    # Load modules
+    modprobe libcomposite 2>/dev/null || true
+    modprobe dwc2 2>/dev/null || true
+    
+    # Mount configfs
+    if ! mountpoint -q /sys/kernel/config; then
+        mount -t configfs none /sys/kernel/config || {
+            echo "FAIL"
+            return 1
+        }
+    fi
+    
+    # Check UDC exists
+    [ ! -d "/sys/class/udc" ] || [ -z "$(ls /sys/class/udc/)" ] && {
+        echo "FAIL (no UDC)"
+        return 1
+    }
+    
+    # Create gadget
+    mkdir -p "${GADGET_PATH}"
+    cd "${GADGET_PATH}"
+    
+    # Basic device info
+    echo "0x1d6b" > idVendor
+    echo "0x0104" > idProduct
+    echo "0x0100" > bcdDevice
+    echo "0x0200" > bcdUSB
+    
+    # Strings
+    mkdir -p strings/0x409
+    echo "$(get_serial)" > strings/0x409/serialnumber
+    echo "Buildroot" > strings/0x409/manufacturer
+    echo "USB Serial Console" > strings/0x409/product
+    
+    # Configuration
+    mkdir -p configs/c.1/strings/0x409
+    echo "ACM Serial" > configs/c.1/strings/0x409/configuration
+    echo "250" > configs/c.1/MaxPower
+    
+    # ACM function (serial console)
+    mkdir -p functions/acm.usb0
+    ln -s functions/acm.usb0 configs/c.1/
+    
+    # Bind to UDC
+    UDC=$(ls /sys/class/udc/ | head -1)
+    echo "$UDC" > UDC || {
+        echo "FAIL"
+        return 1
+    }
+    
+    # Wait for ttyGS0
+    for i in 1 2 3 4 5; do
+        [ -c "/dev/ttyGS0" ] && break
+        sleep 1
+    done
+    
+    # Start getty on ttyGS0
+    if [ -c "/dev/ttyGS0" ]; then
+        /sbin/getty -L ttyGS0 115200 vt100 &
+        echo "OK"
+    else
+        echo "OK (no ttyGS0)"
+    fi
 }
 
 stop() {
-	printf 'Stopping %s: ' "$DAEMON"
-	$DAEMON_PATH stop >/dev/null 2>&1
-	[ $? -eq 0 ] && echo "OK" || echo "FAIL"
+    printf 'Stopping USB gadget: '
+    
+    # Kill getty
+    pkill -f "getty.*ttyGS0" 2>/dev/null || true
+    
+    [ ! -d "${GADGET_PATH}" ] && {
+        echo "OK"
+        return 0
+    }
+    
+    cd "${GADGET_PATH}"
+    
+    # Unbind UDC
+    echo "" > UDC 2>/dev/null || true
+    sleep 1
+    
+    # Remove config
+    rm -f configs/c.1/acm.usb0 2>/dev/null || true
+    rmdir configs/c.1/strings/0x409 2>/dev/null || true
+    rmdir configs/c.1 2>/dev/null || true
+    
+    # Remove function
+    rmdir functions/acm.usb0 2>/dev/null || true
+    
+    # Remove gadget
+    rmdir strings/0x409 2>/dev/null || true
+    cd ..
+    rmdir g1 2>/dev/null || true
+    
+    echo "OK"
 }
 
 case "$1" in
-	start) start ;;
-	stop) stop ;;
-	restart) stop; sleep 2; start ;;
-	status) $DAEMON_PATH status ;;
-	*) echo "Usage: $0 {start|stop|restart|status}"; exit 1 ;;
+    start) start ;;
+    stop) stop ;;
+    restart) stop; sleep 1; start ;;
+    *) echo "Usage: $0 {start|stop|restart}"; exit 1 ;;
 esac
