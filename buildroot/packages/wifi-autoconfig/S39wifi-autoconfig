@@ -1,0 +1,83 @@
+#!/bin/sh
+
+BOOT_MOUNTED=0
+
+case "$1" in
+  start)
+    echo "Configuring WiFi from /boot partition..."
+    
+    # Check if /boot is already mounted
+    if ! mountpoint -q /boot 2>/dev/null; then
+      echo "Mounting /boot partition..."
+      mount /dev/mmcblk0p1 /boot
+      if [ $? -eq 0 ]; then
+        BOOT_MOUNTED=1
+        echo "/boot mounted successfully"
+      else
+        echo "ERROR: Failed to mount /boot"
+        exit 1
+      fi
+    else
+      echo "/boot already mounted"
+    fi
+    
+    # Copy wpa_supplicant.conf if exists
+    if [ -f /boot/wpa_supplicant.conf ]; then
+      echo "Found wpa_supplicant.conf in /boot"
+      mkdir -p /var/run/wpa_supplicant
+      cp /boot/wpa_supplicant.conf /etc/wpa_supplicant.conf
+      chmod 600 /etc/wpa_supplicant.conf
+      echo "WiFi configuration copied"
+      
+      # Unmount /boot if we mounted it
+      if [ $BOOT_MOUNTED -eq 1 ]; then
+        echo "Unmounting /boot..."
+        umount /boot
+      fi
+      
+      # Bring up wlan0
+      ip link set wlan0 up
+      sleep 1
+      
+      # Start wpa_supplicant
+      echo "Starting wpa_supplicant..."
+      wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant.conf
+      
+      # Wait for connection
+      sleep 5
+      
+      # Request IP address
+      echo "Requesting IP address..."
+      udhcpc -i wlan0 -b -q
+      
+      echo "WiFi configuration complete"
+    else
+      echo "No wpa_supplicant.conf found in /boot"
+      
+      # Unmount /boot if we mounted it
+      if [ $BOOT_MOUNTED -eq 1 ]; then
+        echo "Unmounting /boot..."
+        umount /boot
+      fi
+    fi
+    ;;
+    
+  stop)
+    echo "Stopping WiFi services..."
+    killall wpa_supplicant 2>/dev/null
+    killall udhcpc 2>/dev/null
+    ip link set wlan0 down 2>/dev/null
+    ;;
+    
+  restart)
+    $0 stop
+    sleep 2
+    $0 start
+    ;;
+    
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit 0

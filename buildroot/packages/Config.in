@@ -1,3 +1,2 @@
-source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/iwd-autoconfig/Config.in"
-source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/base-config/Config.in"
+source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/wifi-autoconfig/Config.in"
 source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/usb-gadget/Config.in"

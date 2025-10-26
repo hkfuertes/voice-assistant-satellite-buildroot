@@ -1,0 +1,29 @@
+config BR2_PACKAGE_WIFI_AUTOCONFIG
+	bool "wifi-autoconfig"
+	depends on BR2_USE_MMU # wpa_supplicant
+	depends on BR2_PACKAGE_BUSYBOX_SHOW_OTHERS || BR2_PACKAGE_UTIL_LINUX
+	select BR2_PACKAGE_WPA_SUPPLICANT
+	select BR2_PACKAGE_WPA_SUPPLICANT_CLI
+	select BR2_PACKAGE_WPA_SUPPLICANT_PASSPHRASE
+	help
+	  Base system configuration for Raspberry Pi Zero 2 W including:
+	  - WiFi module configuration (brcmfmac)
+	  - Automatic WiFi setup from /boot/wpa_supplicant.conf
+	  - Network auto-configuration with wpa_supplicant
+	  
+	  Place a wpa_supplicant.conf file in the /boot partition
+	  to automatically configure WiFi on first boot.
+
+if BR2_PACKAGE_WIFI_AUTOCONFIG
+
+config BR2_PACKAGE_WIFI_AUTOCONFIG_ENABLE_DHCP
+	bool "Enable automatic DHCP client"
+	default y
+	help
+	  Automatically start DHCP client (udhcpc) after WiFi
+	  connection is established.
+
+endif
+
+comment "wifi-autoconfig needs MMU support"
+	depends on !BR2_USE_MMU

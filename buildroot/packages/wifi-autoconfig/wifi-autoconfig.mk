@@ -1,0 +1,22 @@
+################################################################################
+#
+# wifi-autoconfig
+#
+################################################################################
+
+WIFI_AUTOCONFIG_VERSION = 1.0
+WIFI_AUTOCONFIG_LICENSE = MIT
+
+# No source needed - just an init script
+WIFI_AUTOCONFIG_SOURCE =
+
+define WIFI_AUTOCONFIG_INSTALL_INIT_SYSV
+	mkdir -p $(TARGET_DIR)/etc/modprobe.d
+	echo "options brcmfmac roamoff=1 feature_disable=0x82000" > \
+		$(TARGET_DIR)/etc/modprobe.d/brcmfmac.conf
+
+	$(INSTALL) -D -m 0755 $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/wifi-autoconfig/S39wifi-autoconfig \
+		$(TARGET_DIR)/etc/init.d/S39wifi-autoconfig
+endef
+
+$(eval $(generic-package))

@@ -1,8 +1,0 @@
-config BR2_PACKAGE_BASE_CONFIG
-	bool "base-config"
-	depends on BR2_LINUX_KERNEL
-	help
-	  Raspberry Pi configurations.
-	  
-	  Disables roaming and certain problematic features that
-	  cause connection issues on Raspberry Pi boards.
