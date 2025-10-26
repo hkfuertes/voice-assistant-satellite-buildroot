@@ -1,18 +1,7 @@
-# Build del contenedor (solo primera vez)
-docker-compose build --no-cache
-
-# Entrar en el contenedor
-docker compose run --rm buildroot
-
-# Dentro del contenedor:
-make raspberrypizero2w_defconfig
-
-# Añadir paquetes que quieras
-make menuconfig
-# O editar .config directamente:
-echo 'BR2_PACKAGE_IWD=y' >> .config
-echo 'BR2_PACKAGE_OPENSSH=y' >> .config
+docker-compose run --rm buildroot
+cp /repo/diffconfig .config
+make raspberrypizero2w_64_defconfig
 make olddefconfig
-
-# Compilar
+make menuconfig  # Si quieres cambiar algo
+make savedefconfig BR2_DEFCONFIG=/repo/diffconfig
 make

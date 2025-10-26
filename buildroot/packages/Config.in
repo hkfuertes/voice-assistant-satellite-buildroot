@@ -1,0 +1,1 @@
+source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/iwd-autoconfig/Config.in"

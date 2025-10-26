@@ -1,0 +1,51 @@
+#!/bin/sh
+
+DAEMON="iwd-autoconfig"
+IWD_DIR="/var/lib/iwd"
+BOOT_DIR="/boot"
+
+start() {
+	printf "Starting $DAEMON: "
+	
+	mkdir -p "$IWD_DIR"
+	
+	# Move all .psk files from boot to iwd config directory
+	if [ -d "$BOOT_DIR" ] && ls "$BOOT_DIR"/*.psk >/dev/null 2>&1; then
+		for psk_file in "$BOOT_DIR"/*.psk; do
+			if [ -f "$psk_file" ]; then
+				mv "$psk_file" "$IWD_DIR/"
+				chmod 600 "$IWD_DIR/$(basename "$psk_file")"
+				echo "Configured: $(basename "$psk_file")"
+			fi
+		done
+		echo "OK"
+	else
+		echo "No .psk files found"
+	fi
+}
+
+stop() {
+	echo "Nothing to stop"
+}
+
+restart() {
+	stop
+	start
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart|reload)
+		restart
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+esac
+
+exit $?

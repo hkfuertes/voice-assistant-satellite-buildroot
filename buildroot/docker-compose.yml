@@ -4,7 +4,7 @@ services:
     command: >
       sh -c "chown -R 1000:1000 /home/builder/buildroot/output /home/builder/buildroot/dl"
     volumes:
-      - ./output:/home/builder/buildroot/output
+      # - ./output:/home/builder/buildroot/output
       - dl:/home/builder/buildroot/dl
     user: root
     restart: "no"
@@ -17,9 +17,11 @@ services:
     tty: true
     volumes:
       # - ./output:/home/builder/buildroot/output
-      # - dl:/home/builder/buildroot/dl
+      - dl:/home/builder/buildroot/dl
       - .:/repo
     command: ["/bin/bash"]
+    environment:
+      - BR2_EXTERNAL=/repo/packages
     depends_on:
       chown-fix:
         condition: service_completed_successfully
