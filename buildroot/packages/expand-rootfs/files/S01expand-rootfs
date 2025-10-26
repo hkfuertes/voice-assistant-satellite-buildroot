@@ -1,0 +1,33 @@
+#!/bin/sh
+
+NAME="expand-rootfs"
+PROG="/usr/bin/rootfs-resizer"
+FLAG="/RESIZED"
+
+start() {
+    [ -f "$FLAG" ] && return 0
+    
+    printf 'Expanding rootfs: '
+    
+    if "$PROG"; then
+        echo "OK"
+        echo "Rootfs expanded successfully. Rebooting..."
+        sleep 2
+        sync
+        reboot -f
+    else
+        echo "FAIL"
+        return 1
+    fi
+}
+
+stop() {
+    :
+}
+
+case "$1" in
+    start) start ;;
+    stop) stop ;;
+    restart) stop; start ;;
+    *) echo "Usage: $0 {start|stop|restart}"; exit 1 ;;
+esac

@@ -1,0 +1,17 @@
+config BR2_PACKAGE_EXPAND_ROOTFS
+	bool "expand-rootfs"
+	select BR2_PACKAGE_E2FSPROGS
+	select BR2_PACKAGE_E2FSPROGS_RESIZE2FS
+	select BR2_PACKAGE_E2FSPROGS_FSCK
+	select BR2_PACKAGE_UTIL_LINUX
+	select BR2_PACKAGE_UTIL_LINUX_BINARIES
+	select BR2_PACKAGE_UTIL_LINUX_FINDMNT
+	help
+	  Automatically expand root filesystem to fill entire partition
+	  on first boot.
+	  
+	  Uses tune2fs, fsck.ext4 and resize2fs to safely expand the
+	  root filesystem. System will reboot automatically after
+	  successful expansion.
+	  
+	  After reboot, /RESIZED flag prevents re-expansion.
