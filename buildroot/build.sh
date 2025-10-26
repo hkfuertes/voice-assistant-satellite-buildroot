@@ -1,5 +1,5 @@
 # Build del contenedor (solo primera vez)
-docker-compose build
+docker-compose build --no-cache
 
 # Entrar en el contenedor
 docker compose run --rm buildroot

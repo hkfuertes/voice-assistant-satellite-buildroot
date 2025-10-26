@@ -21,7 +21,7 @@ WORKDIR /buildroot
 
 RUN git clone https://git.buildroot.net/buildroot && \
     cd buildroot && \
-    git checkout 2024.02.x
+    git checkout 2025.08.x
 
 WORKDIR /buildroot/buildroot
 
