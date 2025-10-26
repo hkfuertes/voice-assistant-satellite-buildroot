@@ -2,12 +2,19 @@
 
 DAEMON="iwd-autoconfig"
 IWD_DIR="/var/lib/iwd"
+BOOT_PART="/dev/mmcblk0p1"
 BOOT_DIR="/boot"
 
 start() {
 	printf "Starting $DAEMON: "
 	
 	mkdir -p "$IWD_DIR"
+	mkdir -p "$BOOT_DIR"
+	
+	# Mount boot partition if not already mounted
+	if ! mountpoint -q "$BOOT_DIR"; then
+		mount -t vfat "$BOOT_PART" "$BOOT_DIR" 2>/dev/null
+	fi
 	
 	# Move all .psk files from boot to iwd config directory
 	if [ -d "$BOOT_DIR" ] && ls "$BOOT_DIR"/*.psk >/dev/null 2>&1; then
@@ -22,6 +29,9 @@ start() {
 	else
 		echo "No .psk files found"
 	fi
+	
+	# Unmount boot to avoid accidental modifications
+	umount "$BOOT_DIR" 2>/dev/null || true
 }
 
 stop() {
