@@ -15,14 +15,19 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python-is-python3 \
     vim \
+    sudo \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /buildroot
+RUN useradd -m -u 1000 -G sudo builder && \
+    echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+USER builder
+WORKDIR /home/builder
 
 RUN git clone https://git.buildroot.net/buildroot && \
     cd buildroot && \
     git checkout 2025.08.x
 
-WORKDIR /buildroot/buildroot
+WORKDIR /home/builder/buildroot
 
 CMD ["/bin/bash"]

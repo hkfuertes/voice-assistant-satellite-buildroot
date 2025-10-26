@@ -1,14 +1,28 @@
-version: '3.8'
-
 services:
+  chown-fix:
+    image: alpine:latest
+    command: >
+      sh -c "chown -R 1000:1000 /home/builder/buildroot/output /home/builder/buildroot/dl"
+    volumes:
+      - ./output:/home/builder/buildroot/output
+      - dl:/home/builder/buildroot/dl
+    user: root
+    restart: "no"
+
   buildroot:
     build: .
     container_name: buildroot-rpi0w2
-    volumes:
-      - ./output:/buildroot/buildroot/output
-      - ./dl:/buildroot/buildroot/dl
-    working_dir: /buildroot/buildroot
+    working_dir: /home/builder/buildroot
     stdin_open: true
     tty: true
-    environment:
-      - BR2_JLEVEL=0
+    volumes:
+      # - ./output:/home/builder/buildroot/output
+      # - dl:/home/builder/buildroot/dl
+      - .:/repo
+    command: ["/bin/bash"]
+    depends_on:
+      chown-fix:
+        condition: service_completed_successfully
+
+volumes:
+  dl:

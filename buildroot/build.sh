@@ -10,9 +10,9 @@ make raspberrypizero2w_defconfig
 # Añadir paquetes que quieras
 make menuconfig
 # O editar .config directamente:
-# echo 'BR2_PACKAGE_IWD=y' >> .config
-# echo 'BR2_PACKAGE_OPENSSH=y' >> .config
-# make olddefconfig
+echo 'BR2_PACKAGE_IWD=y' >> .config
+echo 'BR2_PACKAGE_OPENSSH=y' >> .config
+make olddefconfig
 
 # Compilar
 make
