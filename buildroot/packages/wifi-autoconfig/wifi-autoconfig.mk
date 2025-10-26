@@ -20,8 +20,12 @@ define WIFI_AUTOCONFIG_INSTALL_INIT_SYSV
 	sed -i 's/^#*PasswordAuthentication.*/PasswordAuthentication yes/' \
 		$(TARGET_DIR)/etc/ssh/sshd_config
 
-	$(INSTALL) -D -m 0755 $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/wifi-autoconfig/S39wifi-autoconfig \
+	$(INSTALL) -D -m 0755 $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/wifi-autoconfig/files/S39wifi-autoconfig \
 		$(TARGET_DIR)/etc/init.d/S39wifi-autoconfig
+	
+	test -f $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/wifi-autoconfig/files/wpa_supplicant.conf && \
+		$(INSTALL) -D -m 0600 $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/wifi-autoconfig/files/wpa_supplicant.conf \
+		$(TARGET_DIR)/boot/wpa_supplicant.conf || true
 endef
 
 $(eval $(generic-package))
