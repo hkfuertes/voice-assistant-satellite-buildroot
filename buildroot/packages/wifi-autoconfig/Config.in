@@ -5,6 +5,7 @@ config BR2_PACKAGE_WIFI_AUTOCONFIG
 	select BR2_PACKAGE_WPA_SUPPLICANT
 	select BR2_PACKAGE_WPA_SUPPLICANT_CLI
 	select BR2_PACKAGE_WPA_SUPPLICANT_PASSPHRASE
+	select BR2_PACKAGE_OPENSSH
 	help
 	  Base system configuration for Raspberry Pi Zero 2 W including:
 	  - WiFi module configuration (brcmfmac)

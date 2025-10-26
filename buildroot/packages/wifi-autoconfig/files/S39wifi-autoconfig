@@ -1,56 +1,44 @@
 #!/bin/sh
 
 BOOT_MOUNTED=0
+WPA_CONF="/etc/wpa_supplicant.conf"
 
 case "$1" in
   start)
-    echo "Configuring WiFi from /boot partition..."
+    echo "Configuring WiFi..."
     
-    # Create /boot directory if it doesn't exist
     mkdir -p /boot
     
     # Check if /boot is already mounted
     if ! mountpoint -q /boot 2>/dev/null; then
-      echo "Mounting /boot partition..."
-      mount /dev/mmcblk0p1 /boot
-      if [ $? -eq 0 ]; then
-        BOOT_MOUNTED=1
-        echo "/boot mounted successfully"
-      else
-        echo "ERROR: Failed to mount /boot"
-        exit 1
-      fi
-    else
-      echo "/boot already mounted"
+      mount /dev/mmcblk0p1 /boot 2>/dev/null && BOOT_MOUNTED=1
     fi
     
-    # Copy wpa_supplicant.conf if exists
+    # Copy wpa_supplicant.conf from /boot if exists
     if [ -f /boot/wpa_supplicant.conf ]; then
-      echo "Found wpa_supplicant.conf in /boot"
-      mkdir -p /var/run/wpa_supplicant
-      cp /boot/wpa_supplicant.conf /etc/wpa_supplicant.conf
-      chmod 600 /etc/wpa_supplicant.conf
-      
-      # Unmount /boot if we mounted it
-      if [ $BOOT_MOUNTED -eq 1 ]; then
-        umount /boot
-      fi
-      
-      # Bring up wlan0 and connect
-      ip link set wlan0 up
-      sleep 1
-      wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant.conf
-      sleep 5
-      udhcpc -i wlan0 -b -q
-      
-      echo "WiFi configuration complete"
+      echo "Found wpa_supplicant.conf in /boot, copying to /etc/"
+      cp /boot/wpa_supplicant.conf "$WPA_CONF"
+      chmod 600 "$WPA_CONF"
+    elif [ -f "$WPA_CONF" ]; then
+      echo "Using existing wpa_supplicant.conf from /etc/"
     else
-      echo "No wpa_supplicant.conf found in /boot"
-      
-      if [ $BOOT_MOUNTED -eq 1 ]; then
-        umount /boot
-      fi
+      echo "No wpa_supplicant.conf found in /boot or /etc/"
+      [ $BOOT_MOUNTED -eq 1 ] && umount /boot
+      exit 0
     fi
+    
+    # Unmount /boot if we mounted it
+    [ $BOOT_MOUNTED -eq 1 ] && umount /boot
+    
+    # Start WiFi with wpa_supplicant
+    echo "Connecting to WiFi..."
+    mkdir -p /var/run/wpa_supplicant
+    ip link set wlan0 up
+    sleep 1
+    wpa_supplicant -B -i wlan0 -c "$WPA_CONF"
+    sleep 3
+    udhcpc -i wlan0 -b -q
+    echo "WiFi configured"
     ;;
     
   stop)
@@ -62,6 +50,7 @@ case "$1" in
   *)
     echo "Usage: $0 {start|stop}"
     exit 1
+    ;;
 esac
 
 exit 0
