@@ -5,3 +5,5 @@ make olddefconfig
 make menuconfig  # Si quieres cambiar algo
 make savedefconfig BR2_DEFCONFIG=/repo/diffconfig
 make
+
+cp output/images/sdcard.img /repo/

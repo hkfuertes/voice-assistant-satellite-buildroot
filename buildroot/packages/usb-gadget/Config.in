@@ -1,0 +1,8 @@
+config BR2_PACKAGE_USB_GADGET
+	bool "usb-gadget"
+	depends on BR2_LINUX_KERNEL
+	help
+	  USB Gadget configuration for devices with UDC support.
+	  
+	  Provides NCM/RNDIS networking over USB and OTG host mode.
+	  Compatible with MSM8916 and similar platforms.

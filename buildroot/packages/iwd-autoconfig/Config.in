@@ -5,7 +5,7 @@ config BR2_PACKAGE_IWD_AUTOCONFIG
 	  Auto-configure iwd WiFi from .psk files in /boot partition.
 	  
 	  This package installs an init script that automatically moves
-	  .psk files from /boot to /var/lib/iwd on first boot.
+	  .psk files from /boot to /var/lib/iwd on boot.
 
 comment "iwd-autoconfig needs iwd"
 	depends on !BR2_PACKAGE_IWD

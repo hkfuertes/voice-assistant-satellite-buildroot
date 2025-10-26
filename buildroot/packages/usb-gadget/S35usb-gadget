@@ -1,0 +1,24 @@
+#!/bin/sh
+
+DAEMON="usb-gadget"
+DAEMON_PATH="/usr/sbin/usb-gadget"
+
+start() {
+	printf 'Starting %s: ' "$DAEMON"
+	$DAEMON_PATH start >/dev/null 2>&1
+	[ $? -eq 0 ] && echo "OK" || echo "FAIL"
+}
+
+stop() {
+	printf 'Stopping %s: ' "$DAEMON"
+	$DAEMON_PATH stop >/dev/null 2>&1
+	[ $? -eq 0 ] && echo "OK" || echo "FAIL"
+}
+
+case "$1" in
+	start) start ;;
+	stop) stop ;;
+	restart) stop; sleep 2; start ;;
+	status) $DAEMON_PATH status ;;
+	*) echo "Usage: $0 {start|stop|restart|status}"; exit 1 ;;
+esac
