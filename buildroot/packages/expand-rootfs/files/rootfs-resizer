@@ -1,34 +1,40 @@
 #!/bin/sh
 
 FLAG="/RESIZED"
-ROOT_PART="$(findmnt -n -o SOURCE /)"
+PART_FLAG="/PART_RESIZED"
+ROOT_DEV="/dev/mmcblk0"
+ROOT_PART="/dev/mmcblk0p2"
 
+# Already completed everything
 [ -f "$FLAG" ] && exit 0
 
-echo "Expanding root filesystem..."
+# Phase 1: Expand partition
+if [ ! -f "$PART_FLAG" ]; then
+    echo "=== Phase 1: Expanding partition ==="
+    
+    echo ", +" | sfdisk --no-reread -N 2 "$ROOT_DEV"
+    
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Failed to resize partition"
+        exit 1
+    fi
+    
+    touch "$PART_FLAG"
+    echo "Partition expanded. Rebooting to apply changes..."
+    return 0  # Return to init script which will reboot
+fi
 
-# Remount read-only for safety
-mount -o ro,remount /
-
-# Disable resize_inode feature to allow online resize
-tune2fs -O^resize_inode "$ROOT_PART" 2>/dev/null
-
-# Check and repair filesystem
-echo "Checking filesystem..."
-fsck.ext4 -yDf "$ROOT_PART" >/dev/null 2>&1
-
-# Remount read-write
-mount -o rw,remount /
-
-# Expand filesystem to fill partition
-echo "Resizing filesystem..."
-resize2fs "$ROOT_PART" >/dev/null 2>&1
+# Phase 2: Expand filesystem (after reboot)
+echo "=== Phase 2: Expanding filesystem ==="
+resize2fs "$ROOT_PART"
 
 if [ $? -eq 0 ]; then
     touch "$FLAG"
-    echo "Filesystem expanded successfully"
+    rm -f "$PART_FLAG"
+    echo "=== Complete ==="
+    df -h /
     exit 0
 else
-    echo "ERROR: Failed to expand filesystem"
+    echo "ERROR: resize2fs failed"
     exit 1
 fi

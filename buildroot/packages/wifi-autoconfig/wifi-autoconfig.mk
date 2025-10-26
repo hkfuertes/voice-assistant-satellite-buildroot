@@ -25,7 +25,7 @@ define WIFI_AUTOCONFIG_INSTALL_INIT_SYSV
 	
 	test -f $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/wifi-autoconfig/files/wpa_supplicant.conf && \
 		$(INSTALL) -D -m 0600 $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/wifi-autoconfig/files/wpa_supplicant.conf \
-		$(TARGET_DIR)/boot/wpa_supplicant.conf || true
+		$(TARGET_DIR)/etc/wpa_supplicant.conf || true
 endef
 
 $(eval $(generic-package))

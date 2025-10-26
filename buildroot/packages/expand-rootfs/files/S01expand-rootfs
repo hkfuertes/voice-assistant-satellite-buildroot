@@ -3,6 +3,7 @@
 NAME="expand-rootfs"
 PROG="/usr/bin/rootfs-resizer"
 FLAG="/RESIZED"
+PART_FLAG="/PART_RESIZED"
 
 start() {
     [ -f "$FLAG" ] && return 0
@@ -11,10 +12,14 @@ start() {
     
     if "$PROG"; then
         echo "OK"
-        echo "Rootfs expanded successfully. Rebooting..."
-        sleep 2
-        sync
-        reboot -f
+        
+        # If partition was just resized, reboot
+        if [ -f "$PART_FLAG" ] && [ ! -f "$FLAG" ]; then
+            echo "Partition resized. Rebooting to apply..."
+            sleep 2
+            sync
+            reboot -f
+        fi
     else
         echo "FAIL"
         return 1

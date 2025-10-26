@@ -2,9 +2,8 @@ services:
   chown-fix:
     image: alpine:latest
     command: >
-      sh -c "chown -R 1000:1000 /home/builder/buildroot/output /home/builder/buildroot/dl"
+      sh -c "chown -R 1000:1000 /home/builder/buildroot/dl"
     volumes:
-      # - ./output:/home/builder/buildroot/output
       - dl:/home/builder/buildroot/dl
     user: root
     restart: "no"
@@ -16,7 +15,6 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      # - ./output:/home/builder/buildroot/output
       - dl:/home/builder/buildroot/dl
       - .:/repo
     command: ["/bin/bash"]

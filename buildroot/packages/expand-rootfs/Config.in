@@ -2,16 +2,23 @@ config BR2_PACKAGE_EXPAND_ROOTFS
 	bool "expand-rootfs"
 	select BR2_PACKAGE_E2FSPROGS
 	select BR2_PACKAGE_E2FSPROGS_RESIZE2FS
-	select BR2_PACKAGE_E2FSPROGS_FSCK
 	select BR2_PACKAGE_UTIL_LINUX
 	select BR2_PACKAGE_UTIL_LINUX_BINARIES
-	select BR2_PACKAGE_UTIL_LINUX_FINDMNT
 	help
-	  Automatically expand root filesystem to fill entire partition
+	  Automatically expand root filesystem to fill entire SD card
 	  on first boot.
 	  
-	  Uses tune2fs, fsck.ext4 and resize2fs to safely expand the
-	  root filesystem. System will reboot automatically after
-	  successful expansion.
+	  This package uses sfdisk to expand the root partition and
+	  resize2fs to expand the ext4 filesystem. The process happens
+	  in two phases with an automatic reboot in between:
 	  
-	  After reboot, /RESIZED flag prevents re-expansion.
+	  Boot 1: Expand partition, reboot
+	  Boot 2: Expand filesystem, complete
+	  
+	  After expansion, /RESIZED flag prevents re-execution.
+	  
+	  Required tools:
+	  - sfdisk (from util-linux)
+	  - resize2fs (from e2fsprogs)
+	  
+	  The root partition will use all available space on the SD card.
