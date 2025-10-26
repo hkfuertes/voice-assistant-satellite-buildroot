@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  buildroot:
+    build: .
+    container_name: buildroot-rpi0w2
+    volumes:
+      - ./output:/buildroot/buildroot/output
+      - ./dl:/buildroot/buildroot/dl
+    working_dir: /buildroot/buildroot
+    stdin_open: true
+    tty: true
+    environment:
+      - BR2_JLEVEL=0
