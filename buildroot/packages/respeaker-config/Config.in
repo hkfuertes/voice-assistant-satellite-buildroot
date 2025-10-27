@@ -1,0 +1,22 @@
+config BR2_PACKAGE_RESPEAKER_CONFIG
+	bool "respeaker-config"
+	depends on BR2_LINUX_KERNEL
+	select BR2_PACKAGE_ALSA_UTILS
+	select BR2_PACKAGE_ALSA_UTILS_AMIXER
+	select BR2_PACKAGE_ALSA_UTILS_ALSACTL
+	select BR2_PACKAGE_ALSA_UTILS_APLAY
+	help
+	  Configuration package for ReSpeaker 2-Mic HAT v1 (WM8960).
+	  Installs ALSA configuration and init scripts.
+
+	  IMPORTANT: You must enable the following kernel options:
+	  - Use: make linux-menuconfig
+	  - Or add this fragment to BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES:
+	    package/respeaker-config/linux.fragment
+
+	  Kernel config required:
+	  - CONFIG_SND_SOC_WM8960=m
+	  - CONFIG_I2C=y
+
+comment "respeaker-config needs a Linux kernel with SND_SOC_WM8960"
+	depends on BR2_LINUX_KERNEL && !BR2_LINUX_KERNEL_EXT_RTAI
