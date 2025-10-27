@@ -1,0 +1,19 @@
+# Raspberry Pi Zero 2W - 64-bit headless configuration
+# Kernel
+kernel=Image
+
+# Disable overscan (no display)
+disable_overscan=1
+
+# GPU Memory - 16MB minimum for headless
+gpu_mem=16
+
+# UART for serial console
+dtoverlay=miniuart-bt
+enable_uart=1
+
+# Enable 64-bit mode
+arm_64bit=1
+
+# Optional: Disable unused hardware to save power
+dtparam=audio=off

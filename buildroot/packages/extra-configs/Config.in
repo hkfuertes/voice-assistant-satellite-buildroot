@@ -1,0 +1,7 @@
+config BR2_PACKAGE_EXTRA_CONFIGS
+	bool "extra-configs"
+	depends on BR2_USE_MMU # wpa_supplicant
+	depends on BR2_PACKAGE_BUSYBOX_SHOW_OTHERS || BR2_PACKAGE_UTIL_LINUX
+	select BR2_PACKAGE_OPENSSH
+	help
+	  Extra configurations.
