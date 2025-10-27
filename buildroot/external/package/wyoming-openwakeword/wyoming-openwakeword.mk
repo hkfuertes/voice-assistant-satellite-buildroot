@@ -26,7 +26,7 @@ define WYOMING_OPENWAKEWORD_INSTALL_TARGET_CMDS
 	
 	# Desempaquetar pyopen-wakeword ARM64 manualmente
 	cd /tmp && \
-		unzip -o /repo/external/package/wyoming-openwakeword/files/pyopen_wakeword-1.0.1-py3-none-manylinux_2_35_aarch64.whl && \
+		unzip -o $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/package/wyoming-openwakeword/files/pyopen_wakeword-1.0.1-py3-none-manylinux_2_35_aarch64.whl && \
 		cp -r pyopen_wakeword* $(TARGET_DIR)/usr/lib/python3.13/site-packages/ && \
 		rm -rf pyopen_wakeword*
 	
@@ -47,7 +47,7 @@ define WYOMING_OPENWAKEWORD_INSTALL_TARGET_CMDS
 	fi
 	
 	# Instalar init script
-	$(INSTALL) -D -m 0755 /repo/external/package/wyoming-openwakeword/files/S85wyoming-openwakeword \
+	$(INSTALL) -D -m 0755 $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/package/wyoming-openwakeword/files/S85wyoming-openwakeword \
 		$(TARGET_DIR)/etc/init.d/S85wyoming-openwakeword
 endef
 

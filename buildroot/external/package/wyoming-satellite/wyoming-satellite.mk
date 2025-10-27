@@ -49,7 +49,7 @@ define WYOMING_SATELLITE_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(WYOMING_SATELLITE_PKGDIR)/files/S90wyoming-satellite \
 		$(TARGET_DIR)/etc/init.d/S90wyoming-satellite
 	
-	$(INSTALL) -D -m 0755$(WYOMING_SATELLITE_PKGDIR)/files/S10cpufreq \
+	$(INSTALL) -D -m 0755 $(WYOMING_SATELLITE_PKGDIR)/files/S10cpufreq \
     	$(TARGET_DIR)/etc/init.d/S10cpufreq
 	
 	# LEDs si están habilitados

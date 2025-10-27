@@ -1,0 +1,15 @@
+config BR2_PACKAGE_WYOMING_MICROWAKEWORD
+	bool "wyoming-microwakeword"
+	depends on BR2_PACKAGE_PYTHON3
+	select BR2_PACKAGE_PYTHON_NUMPY
+	select BR2_PACKAGE_HOST_PYTHON_PIP
+	help
+	  Wyoming protocol server for microWakeWord detection.
+	  
+	  Lighter and faster alternative to openWakeWord.
+	  Optimized for embedded devices like Raspberry Pi.
+	  
+	  https://github.com/rhasspy/wyoming-microwakeword
+
+comment "wyoming-microwakeword needs Python3"
+	depends on !BR2_PACKAGE_PYTHON3
