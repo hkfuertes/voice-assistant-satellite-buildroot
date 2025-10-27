@@ -19,7 +19,7 @@ services:
       - .:/repo
     command: ["/bin/bash"]
     environment:
-      - BR2_EXTERNAL=/repo/packages
+      - BR2_EXTERNAL=/repo/external
     depends_on:
       chown-fix:
         condition: service_completed_successfully

@@ -9,7 +9,7 @@ USB_GADGET_LICENSE = MIT
 USB_GADGET_SOURCE =
 
 define USB_GADGET_INSTALL_INIT_SYSV
-	$(INSTALL) -D -m 0755  $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/usb-gadget/S35usb-gadget \
+	$(INSTALL) -D -m 0755  $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/package/usb-gadget/S35usb-gadget \
 		$(TARGET_DIR)/etc/init.d/S35usb-gadget
 endef
 

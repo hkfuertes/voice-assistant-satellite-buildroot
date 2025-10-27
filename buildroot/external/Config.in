@@ -1,0 +1,5 @@
+source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/wifi-autoconfig/Config.in"
+source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/usb-gadget/Config.in"
+source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/expand-rootfs/Config.in"
+source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/extra-configs/Config.in"
+source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/respeaker-config/Config.in"

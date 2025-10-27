@@ -15,5 +15,3 @@ enable_uart=1
 # Enable 64-bit mode
 arm_64bit=1
 
-# Optional: Disable unused hardware to save power
-dtparam=audio=off
