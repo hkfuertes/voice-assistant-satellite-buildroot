@@ -1,0 +1,72 @@
+#!/bin/sh
+
+DAEMON="wyoming-satellite"
+PIDFILE="/var/run/$DAEMON.pid"
+
+SATELLITE_NAME="AssistPi"
+SATELLITE_URI="tcp://0.0.0.0:10700"
+
+# Dispositivo de audio
+MIC_DEVICE="sysdefault:CARD=wm8960soundcard"
+SPK_DEVICE="sysdefault:CARD=wm8960soundcard"
+
+# URIs opcionales
+WAKE_URI="tcp://127.0.0.1:10400"
+WAKE_WORD="ok_nabu"
+EVENT_URI="tcp://127.0.0.1:10500"
+
+check_service() {
+    # Verificar si un puerto está escuchando
+    # Uso netstat porque es más portable que ss en Buildroot minimal
+    netstat -tuln 2>/dev/null | grep -q ":$1 " && return 0
+    return 1
+}
+
+start() {
+    printf "Starting $DAEMON: "
+    
+    # Construir argumentos base
+    ARGS="--name \"$SATELLITE_NAME\" \
+          --uri \"$SATELLITE_URI\" \
+          --mic-command \"arecord -D $MIC_DEVICE -r 16000 -c 1 -f S16_LE -t raw\" \
+          --snd-command \"aplay -D $SPK_DEVICE -r 22050 -c 1 -f S16_LE -t raw\""
+    
+    # Detectar wake word service
+    if check_service 10400; then
+        ARGS="$ARGS --wake-uri \"$WAKE_URI\" --wake-word-name \"$WAKE_WORD\""
+        printf "[wake] "
+    fi
+    
+    # Detectar LED service
+    if check_service 10500; then
+        ARGS="$ARGS --event-uri \"$EVENT_URI\""
+        printf "[leds] "
+    fi
+    
+    # Iniciar con eval para expandir correctamente
+    eval start-stop-daemon -S -q -b -m -p $PIDFILE -x /usr/bin/$DAEMON -- $ARGS
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+stop() {
+    printf "Stopping $DAEMON: "
+    start-stop-daemon -K -q -p $PIDFILE
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+restart() {
+    stop
+    sleep 1
+    start
+}
+
+case "$1" in
+    start|stop|restart)
+        "$1"
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit 0
