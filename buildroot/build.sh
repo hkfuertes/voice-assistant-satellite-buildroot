@@ -11,3 +11,5 @@ cp output/images/sdcard.img /repo/
 
 # --------------------- #
 sudo modprobe cdc_acm
+arecord -V mono -f cd /dev/null
+

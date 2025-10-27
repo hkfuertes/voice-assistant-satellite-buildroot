@@ -31,15 +31,15 @@ RESPEAKER_CONFIG_PRE_BUILD_HOOKS += RESPEAKER_CONFIG_CHECK_KERNEL_CONFIG
 
 define RESPEAKER_CONFIG_INSTALL_TARGET_CMDS
 	# Install ALSA configuration
-	$(INSTALL) -D -m 0644 $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/respeaker-config/files/asound.conf \
+	$(INSTALL) -D -m 0644 $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/package/respeaker-config/files/asound.conf \
 		$(TARGET_DIR)/etc/asound.conf
 	
 	# Install setup script
-	$(INSTALL) -D -m 0755 $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/respeaker-config/files/setup-respeaker-v1.sh \
+	$(INSTALL) -D -m 0755 $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/package/respeaker-config/files/setup-respeaker-v1.sh \
 		$(TARGET_DIR)/usr/local/bin/setup-respeaker-v1.sh
 	
 	# Install init script
-	$(INSTALL) -D -m 0755 $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/respeaker-config/files/S50respeaker \
+	$(INSTALL) -D -m 0755 $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/package/respeaker-config/files/S50respeaker \
 		$(TARGET_DIR)/etc/init.d/S50respeaker
 endef
 
