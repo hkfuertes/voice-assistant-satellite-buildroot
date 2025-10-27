@@ -21,7 +21,7 @@ WYOMING_SATELLITE_DEPENDENCIES = \
 	alsa-utils
 
 define WYOMING_SATELLITE_INSTALL_TARGET_CMDS
-	# Instalar Wyoming Satellite
+	# Install Wyoming Satellite
 	cd $(@D) && \
 		$(HOST_DIR)/bin/pip3 install \
 		--prefix=$(TARGET_DIR)/usr \
@@ -32,7 +32,7 @@ define WYOMING_SATELLITE_INSTALL_TARGET_CMDS
 		--trusted-host files.pythonhosted.org \
 		.
 	
-	# Instalar dependencias
+	# Install dependencies
 	$(HOST_DIR)/bin/pip3 install \
 		--prefix=$(TARGET_DIR)/usr \
 		--root=/ \
@@ -45,14 +45,20 @@ define WYOMING_SATELLITE_INSTALL_TARGET_CMDS
 			$(TARGET_DIR)/usr/bin/wyoming-satellite; \
 	fi
 	
-	# Instalar init script
-	$(INSTALL) -D -m 0755 $(WYOMING_SATELLITE_PKGDIR)/files/S90wyoming-satellite \
-		$(TARGET_DIR)/etc/init.d/S90wyoming-satellite
+	# Generate init script from template with configured values
+	sed -e 's|@SATELLITE_NAME@|$(call qstrip,$(BR2_PACKAGE_WYOMING_SATELLITE_NAME))|g' \
+	    -e 's|@WAKE_URI@|$(call qstrip,$(BR2_PACKAGE_WYOMING_SATELLITE_WAKE_URI))|g' \
+	    -e 's|@WAKE_WORD@|$(call qstrip,$(BR2_PACKAGE_WYOMING_SATELLITE_WAKE_WORD))|g' \
+	    -e 's|@ENABLE_LEDS@|$(if $(BR2_PACKAGE_WYOMING_SATELLITE_LEDS),y,n)|g' \
+	    $(WYOMING_SATELLITE_PKGDIR)/files/S95wyoming-satellite.in \
+	    > $(TARGET_DIR)/etc/init.d/S95wyoming-satellite
+	chmod 0755 $(TARGET_DIR)/etc/init.d/S95wyoming-satellite
 	
+	# Install CPU governor script
 	$(INSTALL) -D -m 0755 $(WYOMING_SATELLITE_PKGDIR)/files/S10cpufreq \
-    	$(TARGET_DIR)/etc/init.d/S10cpufreq
+		$(TARGET_DIR)/etc/init.d/S10cpufreq
 	
-	# LEDs si están habilitados
+	# LEDs if enabled
 	if grep -q "BR2_PACKAGE_WYOMING_SATELLITE_LEDS=y" $(CONFIG_DIR)/.config; then \
 		$(HOST_DIR)/bin/pip3 install \
 			--prefix=$(TARGET_DIR)/usr \
