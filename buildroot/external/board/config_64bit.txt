@@ -5,11 +5,13 @@ kernel=Image
 # Disable overscan (no display)
 disable_overscan=1
 
+[pi02]
 # Moderate overclock
 arm_freq=1300
 over_voltage=4
 core_freq=500
 
+[all]
 # GPU Memory - 16MB minimum for headless
 gpu_mem=16
 
@@ -19,4 +21,5 @@ enable_uart=1
 
 # Enable 64-bit mode
 arm_64bit=1
+
 
