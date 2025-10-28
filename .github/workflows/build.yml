@@ -13,7 +13,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          chmod +x dependencies.sh
+          chmod +x ./buildroot/dependencies.sh
           sudo ./buildroot/dependencies.sh
 
       - name: Clone Buildroot
