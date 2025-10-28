@@ -18,24 +18,24 @@ jobs:
 
       - name: Clone Buildroot
         run: |
-          git clone https://git.buildroot.net/buildroot /buildroot
-          cd /buildroot
+          git clone https://git.buildroot.net/buildroot sources
+          cd sources
           git checkout 2025.08.x
 
       - name: Set BR2_EXTERNAL
         run: echo "BR2_EXTERNAL=${{ github.workspace }}/buildroot/external" >> $GITHUB_ENV
 
       - name: Configure Buildroot
-        working-directory: /buildroot
+        working-directory: sources
         run: make raspberrypi_3_zero2w_64_defconfig
 
       - name: Build Buildroot
-        working-directory: /buildroot
+        working-directory: sources
         run: make -j$(nproc)
 
       - name: Copy image artifact
         run: |
-          cp /buildroot/output/images/sdcard.img.xz wyoming-satellite-rpi0w2-rpi3.img.xz
+          cp sources/output/images/sdcard.img.xz wyoming-satellite-rpi0w2-rpi3.img.xz
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
