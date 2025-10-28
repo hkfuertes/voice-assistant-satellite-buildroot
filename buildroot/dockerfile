@@ -2,21 +2,8 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    git \
-    wget \
-    cpio \
-    unzip \
-    rsync \
-    bc \
-    libncurses5-dev \
-    file \
-    python3 \
-    python-is-python3 \
-    vim \
-    sudo \
-    && rm -rf /var/lib/apt/lists/*
+COPY dependencies.sh /tmp/dependencies.sh
+RUN chmod +x /tmp/dependencies.sh && /tmp/dependencies.sh
 
 RUN useradd -m -u 1000 -G sudo builder && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers

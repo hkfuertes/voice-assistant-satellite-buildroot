@@ -1,3 +1,15 @@
+x-base: &buildroot
+  build: .
+  working_dir: /home/builder/buildroot
+  volumes:
+    - dl:/home/builder/buildroot/dl
+    - .:/repo
+  environment:
+    - BR2_EXTERNAL=/repo/external
+  depends_on:
+    chown-fix:
+      condition: service_completed_successfully
+
 services:
   chown-fix:
     image: alpine:latest
@@ -8,21 +20,24 @@ services:
     user: root
     restart: "no"
 
-  buildroot:
-    build: .
-    container_name: buildroot-rpi0w2
-    working_dir: /home/builder/buildroot
+  env:
+    <<: *buildroot
+    container_name: buildroot-env
     stdin_open: true
     tty: true
-    volumes:
-      - dl:/home/builder/buildroot/dl
-      - .:/repo
     command: ["/bin/bash"]
-    environment:
-      - BR2_EXTERNAL=$(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)
-    depends_on:
-      chown-fix:
-        condition: service_completed_successfully
+  
+  build:
+    <<: *buildroot
+    container_name: buildroot-rpi0w2-rpi3
+    command:
+    - /bin/sh
+    - -c
+    - |
+      make raspberrypi_3_zero2w_64_defconfig &&
+      make && 
+      cp output/images/sdcard.img.xz /repo/wyoming-satellite-rpi0w2-rpi3.img.xz
+
 
 volumes:
   dl:

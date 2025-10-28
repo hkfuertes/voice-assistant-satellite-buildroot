@@ -27,14 +27,29 @@ wait_for_services() {
     
     printf "Waiting for services to start"
     while [ $count -lt $max_wait ]; do
-        local service_found=0
-        [ -n "$WAKE_URI" ] && check_service 10400 && service_found=1
-        [ "$ENABLE_LEDS" = "y" ] && check_service 10500 && service_found=1
+        local services_needed=0
+        local services_ready=0
         
-        if [ $service_found -eq 1 ] || [ $count -ge 5 ]; then
+        if [ -n "$WAKE_URI" ]; then
+            services_needed=$((services_needed + 1))
+            check_service 10400 && services_ready=$((services_ready + 1))
+        fi
+        
+        if [ "$ENABLE_LEDS" = "y" ]; then
+            services_needed=$((services_needed + 1))
+            check_service 10500 && services_ready=$((services_ready + 1))
+        fi
+        
+        if [ $services_needed -eq 0 ] || [ $services_ready -eq $services_needed ]; then
             echo " OK"
             return 0
         fi
+        
+        if [ $count -ge 5 ]; then
+            echo " timeout (continuing anyway)"
+            return 1
+        fi
+        
         printf "."
         sleep 1
         count=$((count + 1))
