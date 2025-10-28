@@ -1,0 +1,34 @@
+#!/bin/sh
+DAEMON="wyoming-leds"
+PIDFILE="/var/run/$DAEMON.pid"
+LED_BRIGHTNESS="${WYOMING_LED_BRIGHTNESS:-10}"
+
+start() {
+    printf "Starting $DAEMON: "
+    
+    if [ ! -f /usr/bin/wyoming-2mic-leds ]; then
+        echo "FAIL (LED script not installed)"
+        return 1
+    fi
+    
+    start-stop-daemon -S -q -b -m -p $PIDFILE \
+        -x /usr/bin/wyoming-2mic-leds -- \
+        --uri "tcp://127.0.0.1:10500" \
+        --led-brightness $LED_BRIGHTNESS
+    
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+stop() {
+    printf "Stopping $DAEMON: "
+    start-stop-daemon -K -q -p $PIDFILE
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+    rm -f $PIDFILE
+}
+
+case "$1" in
+    start) start ;;
+    stop) stop ;;
+    restart|reload) stop; sleep 1; start ;;
+    *) echo "Usage: $0 {start|stop|restart}"; exit 1 ;;
+esac

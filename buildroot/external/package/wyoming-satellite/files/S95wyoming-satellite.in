@@ -1,0 +1,114 @@
+#!/bin/sh
+
+DAEMON="wyoming-satellite"
+PIDFILE="/var/run/$DAEMON.pid"
+
+SATELLITE_NAME="@SATELLITE_NAME@"
+SATELLITE_URI="tcp://0.0.0.0:10700"
+
+# Audio device
+MIC_DEVICE="sysdefault:CARD=wm8960soundcard"
+SPK_DEVICE="sysdefault:CARD=wm8960soundcard"
+
+# Optional URIs (from config)
+WAKE_URI="@WAKE_URI@"
+WAKE_WORD="@WAKE_WORD@"
+EVENT_URI="tcp://127.0.0.1:10500"
+ENABLE_LEDS="@ENABLE_LEDS@"
+
+check_service() {
+    netstat -tuln 2>/dev/null | grep -q ":$1 " && return 0
+    return 1
+}
+
+wait_for_services() {
+    local max_wait=30
+    local count=0
+    
+    printf "Waiting for services to start"
+    while [ $count -lt $max_wait ]; do
+        local services_needed=0
+        local services_ready=0
+        
+        if [ -n "$WAKE_URI" ]; then
+            services_needed=$((services_needed + 1))
+            check_service 10400 && services_ready=$((services_ready + 1))
+        fi
+        
+        if [ "$ENABLE_LEDS" = "y" ]; then
+            services_needed=$((services_needed + 1))
+            check_service 10500 && services_ready=$((services_ready + 1))
+        fi
+        
+        if [ $services_needed -eq 0 ] || [ $services_ready -eq $services_needed ]; then
+            echo " OK"
+            return 0
+        fi
+        
+        if [ $count -ge 5 ]; then
+            echo " timeout (continuing anyway)"
+            return 1
+        fi
+        
+        printf "."
+        sleep 1
+        count=$((count + 1))
+    done
+    echo " timeout (continuing anyway)"
+    return 1
+}
+
+start() {
+    wait_for_services
+    
+    printf "Starting $DAEMON: "
+    
+    # Build base arguments with performance optimizations
+    ARGS="--name \"$SATELLITE_NAME\" \
+          --uri \"$SATELLITE_URI\" \
+          --mic-command \"arecord -D $MIC_DEVICE -r 16000 -c 1 -f S16_LE -t raw\" \
+          --snd-command \"aplay -D $SPK_DEVICE -r 22050 -c 1 -f S16_LE -t raw\" \
+          --mic-command-samples-per-chunk 1024 \
+          --mic-noise-suppression 0 \
+          --mic-auto-gain 0 \
+          --wake-refractory-seconds 1.0"
+    
+    # Detect wake word service (if configured)
+    if [ -n "$WAKE_URI" ] && check_service 10400; then
+        ARGS="$ARGS --wake-uri \"$WAKE_URI\" --wake-word-name \"$WAKE_WORD\""
+        printf "[wake] "
+    fi
+    
+    # Detect LED service (if enabled)
+    if [ "$ENABLE_LEDS" = "y" ] && check_service 10500; then
+        ARGS="$ARGS --event-uri \"$EVENT_URI\""
+        printf "[leds] "
+    fi
+    
+    # Start with eval to expand correctly
+    eval start-stop-daemon -S -q -b -m -p $PIDFILE -x /usr/bin/$DAEMON -- $ARGS
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+stop() {
+    printf "Stopping $DAEMON: "
+    start-stop-daemon -K -q -p $PIDFILE
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+restart() {
+    stop
+    sleep 2
+    start
+}
+
+case "$1" in
+    start|stop|restart)
+        "$1"
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit 0

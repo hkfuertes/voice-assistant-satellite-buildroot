@@ -38,6 +38,8 @@ case "$1" in
     wpa_supplicant -B -i wlan0 -c "$WPA_CONF"
     sleep 3
     udhcpc -i wlan0 -b -q
+
+    iwconfig wlan0 power off 2>/dev/null
     echo "WiFi configured"
     ;;
     

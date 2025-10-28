@@ -7,21 +7,21 @@ BOARD_NAME="$(basename ${BOARD_DIR})"
 GENIMAGE_CFG="${BOARD_DIR}/genimage-${BOARD_NAME}.cfg"
 GENIMAGE_TMP="${BUILD_DIR}/genimage.tmp"
 
-# generate genimage from template if a board specific variant doesn't exists
+# Generate genimage from template if a board specific variant doesn't exist
 if [ ! -e "${GENIMAGE_CFG}" ]; then
-	GENIMAGE_CFG="${BINARIES_DIR}/genimage.cfg"
-	FILES=()
+    GENIMAGE_CFG="${BINARIES_DIR}/genimage.cfg"
+    FILES=()
 
-	for i in "${BINARIES_DIR}"/*.dtb "${BINARIES_DIR}"/rpi-firmware/*; do
-		FILES+=( "${i#${BINARIES_DIR}/}" )
-	done
+    for i in "${BINARIES_DIR}"/*.dtb "${BINARIES_DIR}"/rpi-firmware/*; do
+        FILES+=( "${i#${BINARIES_DIR}/}" )
+    done
 
-	KERNEL=$(sed -n 's/^kernel=//p' "${BINARIES_DIR}/rpi-firmware/config.txt")
-	FILES+=( "${KERNEL}" )
+    KERNEL=$(sed -n 's/^kernel=//p' "${BINARIES_DIR}/rpi-firmware/config.txt")
+    FILES+=( "${KERNEL}" )
 
-	BOOT_FILES=$(printf '\\t\\t\\t"%s",\\n' "${FILES[@]}")
-	sed "s|#BOOT_FILES#|${BOOT_FILES}|" "${BOARD_DIR}/genimage.cfg.in" \
-		> "${GENIMAGE_CFG}"
+    BOOT_FILES=$(printf '\\t\\t\\t"%s",\\n' "${FILES[@]}")
+    sed "s|#BOOT_FILES#|${BOOT_FILES}|" "${BOARD_DIR}/genimage.cfg.in" \
+        > "${GENIMAGE_CFG}"
 fi
 
 # Pass an empty rootpath. genimage makes a full copy of the given rootpath to
@@ -35,10 +35,21 @@ ROOTPATH_TMP="$(mktemp -d)"
 rm -rf "${GENIMAGE_TMP}"
 
 genimage \
-	--rootpath "${ROOTPATH_TMP}"   \
-	--tmppath "${GENIMAGE_TMP}"    \
-	--inputpath "${BINARIES_DIR}"  \
-	--outputpath "${BINARIES_DIR}" \
-	--config "${GENIMAGE_CFG}"
+    --rootpath "${ROOTPATH_TMP}"   \
+    --tmppath "${GENIMAGE_TMP}"    \
+    --inputpath "${BINARIES_DIR}"  \
+    --outputpath "${BINARIES_DIR}" \
+    --config "${GENIMAGE_CFG}"
+
+# Compress image for Raspberry Pi Imager
+echo "Compressing image for Raspberry Pi Imager..."
+if [ -f "${BINARIES_DIR}/sdcard.img" ]; then
+    # Use xz with compression level 6 (good balance)
+    xz -6 -k -f -v "${BINARIES_DIR}/sdcard.img"
+    echo "Compressed image created: ${BINARIES_DIR}/sdcard.img.xz"
+    
+    # Show file sizes
+    ls -lh "${BINARIES_DIR}/sdcard.img"*
+fi
 
 exit $?
