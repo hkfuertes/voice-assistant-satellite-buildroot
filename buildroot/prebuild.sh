@@ -5,7 +5,6 @@ docker run --rm --platform linux/arm64 \
   python:3.13-slim \
   pip3 wheel --no-deps -w /wheels pyopen-wakeword
 
-# Instala TODO en un contenedor ARM64 y empaqueta el directorio completo
 docker run --rm --platform linux/arm64 \
   -v $(pwd)/external/package/wyoming-microwakeword/files:/output \
   python:3.13-slim \
@@ -15,3 +14,7 @@ docker run --rm --platform linux/arm64 \
     cd /usr/local/lib/python3.13/site-packages && \
     tar czf /output/pymicro-complete.tar.gz pymicro_* micro_*
   "
+
+make -p $(pwd)/external/package/linux-voice-assistant/files
+cp $(pwd)/external/package/wyoming-microwakeword/files/pymicro-complete.tar.gz \
+   $(pwd)/external/package/linux-voice-assistant/files/
