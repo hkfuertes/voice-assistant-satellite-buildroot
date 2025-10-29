@@ -15,4 +15,5 @@ apt-get update && apt-get install -y \
     python-is-python3 \
     vim \
     sudo \
+    python3-pybind11 \
     && rm -rf /var/lib/apt/lists/*
