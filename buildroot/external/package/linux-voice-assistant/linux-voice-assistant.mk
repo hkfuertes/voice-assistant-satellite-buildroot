@@ -18,12 +18,17 @@ endef
 
 LINUX_VOICE_ASSISTANT_POST_EXTRACT_HOOKS += LINUX_VOICE_ASSISTANT_FIX_PYPROJECT
 
-# Fix API compatibility with pymicro-features 2.x
-define LINUX_VOICE_ASSISTANT_FIX_API
-	sed -i 's/ProcessSamples/process_samples/g' $(@D)/linux_voice_assistant/microwakeword.py
+# Install debug versions with extra logging
+define LINUX_VOICE_ASSISTANT_INSTALL_DEBUG_FILES
+	@echo "Installing debug versions of __main__.py and microwakeword.py"
+	cp -f $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/package/linux-voice-assistant/files/debug/__main__.py \
+		$(@D)/linux_voice_assistant/__main__.py
+	cp -f $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/package/linux-voice-assistant/files/debug/microwakeword.py \
+		$(@D)/linux_voice_assistant/microwakeword.py
 endef
 
-# LINUX_VOICE_ASSISTANT_POST_EXTRACT_HOOKS += LINUX_VOICE_ASSISTANT_FIX_API
+# Run AFTER extract and fixes, BEFORE build
+LINUX_VOICE_ASSISTANT_POST_PATCH_HOOKS += LINUX_VOICE_ASSISTANT_INSTALL_DEBUG_FILES
 
 # Install wakeword models
 define LINUX_VOICE_ASSISTANT_INSTALL_WAKEWORDS

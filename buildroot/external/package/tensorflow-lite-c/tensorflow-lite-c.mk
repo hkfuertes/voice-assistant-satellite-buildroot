@@ -40,8 +40,7 @@ TENSORFLOW_LITE_C_CONF_OPTS = \
     -DTFLITE_ENABLE_GPU=OFF \
     -DTFLITE_ENABLE_INSTALL=ON \
     -DTFLITE_ENABLE_MMAP=ON \
-    -DTFLITE_ENABLE_NNAPI=OFF \
-    -DTFLITE_C_BUILD_SHARED_LIBS=ON
+    -DTFLITE_ENABLE_NNAPI=OFF
 
 ifeq ($(BR2_PACKAGE_RUY),y)
 TENSORFLOW_LITE_C_DEPENDENCIES += ruy
@@ -56,5 +55,46 @@ TENSORFLOW_LITE_C_CONF_OPTS += -DTFLITE_ENABLE_XNNPACK=ON -Dxnnpack_POPULATED=ON
 else
 TENSORFLOW_LITE_C_CONF_OPTS += -DTFLITE_ENABLE_XNNPACK=OFF
 endif
+
+# Build C API manually by compiling source files and linking with main lib
+define TENSORFLOW_LITE_C_BUILD_C_API_MANUAL
+	mkdir -p $(@D)/build_c_api
+	cd $(@D)/build_c_api && \
+	$(TARGET_CXX) -shared -fPIC \
+		-I$(@D) \
+		-I$(STAGING_DIR)/usr/include \
+		-o libtensorflowlite_c.so \
+		$(@D)/tensorflow/lite/c/c_api.cc \
+		$(@D)/tensorflow/lite/c/c_api_experimental.cc \
+		$(@D)/tensorflow/lite/c/c_api_opaque.cc \
+		$(@D)/tensorflow/lite/c/c_api_opaque_internal.cc \
+		$(@D)/tensorflow/lite/c/common.cc \
+		-L$(@D)/tensorflow/lite/buildroot-build \
+		-ltensorflow-lite \
+		-Wl,-rpath-link,$(@D)/tensorflow/lite/buildroot-build
+endef
+
+TENSORFLOW_LITE_C_POST_BUILD_HOOKS += TENSORFLOW_LITE_C_BUILD_C_API_MANUAL
+
+# Install C API library
+define TENSORFLOW_LITE_C_INSTALL_C_LIB
+	if [ -f $(@D)/build_c_api/libtensorflowlite_c.so ]; then \
+		$(INSTALL) -D -m 0755 $(@D)/build_c_api/libtensorflowlite_c.so \
+			$(TARGET_DIR)/usr/lib/libtensorflowlite_c.so; \
+		$(INSTALL) -D -m 0755 $(@D)/build_c_api/libtensorflowlite_c.so \
+			$(STAGING_DIR)/usr/lib/libtensorflowlite_c.so; \
+	fi
+	mkdir -p $(TARGET_DIR)/usr/include/tensorflow/lite/c
+	mkdir -p $(STAGING_DIR)/usr/include/tensorflow/lite/c
+	for header in c_api.h c_api_experimental.h c_api_types.h common.h builtin_op_data.h; do \
+		if [ -f $(@D)/tensorflow/lite/c/$$header ]; then \
+			cp -f $(@D)/tensorflow/lite/c/$$header $(TARGET_DIR)/usr/include/tensorflow/lite/c/; \
+			cp -f $(@D)/tensorflow/lite/c/$$header $(STAGING_DIR)/usr/include/tensorflow/lite/c/; \
+		fi; \
+	done
+endef
+
+TENSORFLOW_LITE_C_POST_INSTALL_TARGET_HOOKS += TENSORFLOW_LITE_C_INSTALL_C_LIB
+TENSORFLOW_LITE_C_POST_INSTALL_STAGING_HOOKS += TENSORFLOW_LITE_C_INSTALL_C_LIB
 
 $(eval $(cmake-package))
