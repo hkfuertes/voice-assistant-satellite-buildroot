@@ -1,360 +1,36 @@
 #!/usr/bin/env python3
-
 import argparse
 import asyncio
 import json
 import logging
 import threading
 import time
-from collections.abc import Iterable
-from dataclasses import dataclass
 from pathlib import Path
 from queue import Queue
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
-# pylint: disable=no-name-in-module
+import numpy as np
 import sounddevice as sd
-from aioesphomeapi.api_pb2 import (  # type: ignore[attr-defined]
-    DeviceInfoRequest,
-    DeviceInfoResponse,
-    ListEntitiesDoneResponse,
-    ListEntitiesRequest,
-    MediaPlayerCommandRequest,
-    SubscribeHomeAssistantStatesRequest,
-    VoiceAssistantAnnounceFinished,
-    VoiceAssistantAnnounceRequest,
-    VoiceAssistantAudio,
-    VoiceAssistantConfigurationRequest,
-    VoiceAssistantConfigurationResponse,
-    VoiceAssistantEventResponse,
-    VoiceAssistantRequest,
-    VoiceAssistantSetConfiguration,
-    VoiceAssistantTimerEventResponse,
-    VoiceAssistantWakeWord,
-)
-from aioesphomeapi.model import (
-    VoiceAssistantEventType,
-    VoiceAssistantFeature,
-    VoiceAssistantTimerEventType,
-)
-from google.protobuf import message
 
-from .api_server import APIServer
-from .entity import ESPHomeEntity, MediaPlayerEntity
-from .microwakeword import MicroWakeWord
+from .microwakeword import MicroWakeWord, MicroWakeWordFeatures
+from .models import AvailableWakeWord, Preferences, ServerState, WakeWordType
 from .mpv_player import MpvMediaPlayer
-from .util import call_all, get_mac, is_arm
+from .openwakeword import OpenWakeWord, OpenWakeWordFeatures
+from .satellite import VoiceSatelliteProtocol
+from .util import get_mac, is_arm
+from .zeroconf import HomeAssistantZeroconf
 
 _LOGGER = logging.getLogger(__name__)
 _MODULE_DIR = Path(__file__).parent
 _REPO_DIR = _MODULE_DIR.parent
 _WAKEWORDS_DIR = _REPO_DIR / "wakewords"
+_OWW_DIR = _WAKEWORDS_DIR / "openWakeWord"
 _SOUNDS_DIR = _REPO_DIR / "sounds"
 
 if is_arm():
     _LIB_DIR = _REPO_DIR / "lib" / "linux_arm64"
 else:
     _LIB_DIR = _REPO_DIR / "lib" / "linux_amd64"
-
-
-@dataclass
-class AvailableWakeWord:
-    id: str
-    wake_word: str
-    trained_languages: List[str]
-    config_path: Path
-
-
-@dataclass
-class ServerState:
-    name: str
-    mac_address: str
-    audio_queue: "Queue[Optional[bytes]]"
-    entities: List[ESPHomeEntity]
-    available_wake_words: Dict[str, AvailableWakeWord]
-    wake_word: MicroWakeWord
-    stop_word: MicroWakeWord
-    music_player: MpvMediaPlayer
-    tts_player: MpvMediaPlayer
-    wakeup_sound: str
-    timer_finished_sound: str
-    media_player_entity: Optional[MediaPlayerEntity] = None
-    satellite: "Optional[VoiceSatelliteProtocol]" = None
-
-
-# -----------------------------------------------------------------------------
-
-
-class VoiceSatelliteProtocol(APIServer):
-
-    def __init__(self, state: ServerState) -> None:
-        super().__init__(state.name)
-
-        self.state = state
-        self.state.satellite = self
-
-        if self.state.media_player_entity is None:
-            self.state.media_player_entity = MediaPlayerEntity(
-                server=self,
-                key=len(state.entities),
-                name="Media Player",
-                object_id="linux_voice_assistant_media_player",
-                music_player=state.music_player,
-                announce_player=state.tts_player,
-            )
-            self.state.entities.append(self.state.media_player_entity)
-
-        self._is_streaming_audio = False
-        self._tts_url: Optional[str] = None
-        self._tts_played = False
-        self._continue_conversation = False
-        self._timer_finished = False
-
-    def handle_voice_event(
-        self, event_type: VoiceAssistantEventType, data: Dict[str, str]
-    ) -> None:
-        _LOGGER.debug("Voice event: type=%s, data=%s", event_type.name, data)
-
-        if event_type == VoiceAssistantEventType.VOICE_ASSISTANT_RUN_START:
-            self._tts_url = data.get("url")
-            self._tts_played = False
-            self._continue_conversation = False
-        elif event_type in (
-            VoiceAssistantEventType.VOICE_ASSISTANT_STT_VAD_END,
-            VoiceAssistantEventType.VOICE_ASSISTANT_STT_END,
-        ):
-            self._is_streaming_audio = False
-        elif event_type == VoiceAssistantEventType.VOICE_ASSISTANT_INTENT_PROGRESS:
-            if data.get("tts_start_streaming") == "1":
-                # Start streaming early
-                self.play_tts()
-        elif event_type == VoiceAssistantEventType.VOICE_ASSISTANT_INTENT_END:
-            if data.get("continue_conversation") == "1":
-                self._continue_conversation = True
-        elif event_type == VoiceAssistantEventType.VOICE_ASSISTANT_TTS_END:
-            self._tts_url = data.get("url")
-            self.play_tts()
-        elif event_type == VoiceAssistantEventType.VOICE_ASSISTANT_RUN_END:
-            self._is_streaming_audio = False
-            if not self._tts_played:
-                self._tts_finished()
-
-            self._tts_played = False
-
-        # TODO: handle error
-
-    def handle_timer_event(
-        self,
-        event_type: VoiceAssistantTimerEventType,
-        msg: VoiceAssistantTimerEventResponse,
-    ) -> None:
-        _LOGGER.debug("Timer event: type=%s", event_type.name)
-        if event_type == VoiceAssistantTimerEventType.VOICE_ASSISTANT_TIMER_FINISHED:
-            if not self._timer_finished:
-                self.state.stop_word.is_active = True
-                self._timer_finished = True
-                self.duck()
-                self._play_timer_finished()
-
-    def handle_message(self, msg: message.Message) -> Iterable[message.Message]:
-        if isinstance(msg, VoiceAssistantEventResponse):
-            # Pipeline event
-            data: Dict[str, str] = {}
-            for arg in msg.data:
-                data[arg.name] = arg.value
-
-            self.handle_voice_event(VoiceAssistantEventType(msg.event_type), data)
-        elif isinstance(msg, VoiceAssistantAnnounceRequest):
-            _LOGGER.debug("Announcing: %s", msg.text)
-
-            assert self.state.media_player_entity is not None
-
-            urls = []
-            if msg.preannounce_media_id:
-                urls.append(msg.preannounce_media_id)
-
-            urls.append(msg.media_id)
-
-            self.state.stop_word.is_active = True
-            self._continue_conversation = msg.start_conversation
-
-            self.duck()
-            yield from self.state.media_player_entity.play(
-                urls, announcement=True, done_callback=self._tts_finished
-            )
-        elif isinstance(msg, VoiceAssistantTimerEventResponse):
-            self.handle_timer_event(VoiceAssistantTimerEventType(msg.event_type), msg)
-        elif isinstance(msg, DeviceInfoRequest):
-            yield DeviceInfoResponse(
-                uses_password=False,
-                name=self.state.name,
-                mac_address=self.state.mac_address,
-                voice_assistant_feature_flags=(
-                    VoiceAssistantFeature.VOICE_ASSISTANT
-                    | VoiceAssistantFeature.API_AUDIO
-                    | VoiceAssistantFeature.ANNOUNCE
-                    | VoiceAssistantFeature.START_CONVERSATION
-                    | VoiceAssistantFeature.TIMERS
-                ),
-            )
-        elif isinstance(
-            msg,
-            (
-                ListEntitiesRequest,
-                SubscribeHomeAssistantStatesRequest,
-                MediaPlayerCommandRequest,
-            ),
-        ):
-            for entity in self.state.entities:
-                yield from entity.handle_message(msg)
-
-            if isinstance(msg, ListEntitiesRequest):
-                yield ListEntitiesDoneResponse()
-        elif isinstance(msg, VoiceAssistantConfigurationRequest):
-            yield VoiceAssistantConfigurationResponse(
-                available_wake_words=[
-                    VoiceAssistantWakeWord(
-                        id=ww.id,
-                        wake_word=ww.wake_word,
-                        trained_languages=ww.trained_languages,
-                    )
-                    for ww in self.state.available_wake_words.values()
-                ],
-                active_wake_words=[self.state.wake_word.id],
-                max_active_wake_words=1,
-            )
-            _LOGGER.info("Connected to Home Assistant")
-        elif isinstance(msg, VoiceAssistantSetConfiguration):
-            # TODO: support multiple wake words
-            for wake_word_id in msg.active_wake_words:
-                if wake_word_id == self.state.wake_word.id:
-                    # Already active
-                    break
-
-                model_info = self.state.available_wake_words.get(wake_word_id)
-                if not model_info:
-                    continue
-
-                _LOGGER.debug("Loading wake word: %s", model_info.config_path)
-                self.state.wake_word = MicroWakeWord.from_config(
-                    model_info.config_path,
-                    self.state.wake_word.libtensorflowlite_c_path,
-                )
-
-                _LOGGER.info("Wake word set: %s", self.state.wake_word.wake_word)
-                break
-
-    def handle_audio(self, audio_chunk: bytes) -> None:
-
-        if not self._is_streaming_audio:
-            return
-
-        self.send_messages([VoiceAssistantAudio(data=audio_chunk)])
-
-    def wakeup(self) -> None:
-        if self._timer_finished:
-            # Stop timer instead
-            self._timer_finished = False
-            self.state.tts_player.stop()
-            _LOGGER.debug("Stopping timer finished sound")
-            return
-
-        wake_word_phrase = self.state.wake_word.wake_word
-        _LOGGER.debug("Detected wake word: %s", wake_word_phrase)
-        self.send_messages(
-            [VoiceAssistantRequest(start=True, wake_word_phrase=wake_word_phrase)]
-        )
-        self.duck()
-        self._is_streaming_audio = True
-        self.state.tts_player.play(self.state.wakeup_sound)
-
-    def stop(self) -> None:
-        self.state.stop_word.is_active = False
-        self.state.tts_player.stop()
-
-        if self._timer_finished:
-            self._timer_finished = False
-            _LOGGER.debug("Stopping timer finished sound")
-        else:
-            _LOGGER.debug("TTS response stopped manually")
-            self._tts_finished()
-
-    def play_tts(self) -> None:
-        if (not self._tts_url) or self._tts_played:
-            return
-
-        self._tts_played = True
-        _LOGGER.debug("Playing TTS response: %s", self._tts_url)
-
-        self.state.stop_word.is_active = True
-        self.state.tts_player.play(self._tts_url, done_callback=self._tts_finished)
-
-    def duck(self) -> None:
-        _LOGGER.debug("Ducking music")
-        self.state.music_player.duck()
-
-    def unduck(self) -> None:
-        _LOGGER.debug("Unducking music")
-        self.state.music_player.unduck()
-
-    def _tts_finished(self) -> None:
-        self.state.stop_word.is_active = False
-        self.send_messages([VoiceAssistantAnnounceFinished()])
-
-        if self._continue_conversation:
-            self.send_messages([VoiceAssistantRequest(start=True)])
-            self._is_streaming_audio = True
-            _LOGGER.debug("Continuing conversation")
-        else:
-            self.unduck()
-
-        _LOGGER.debug("TTS response finished")
-
-    def _play_timer_finished(self) -> None:
-        if not self._timer_finished:
-            self.unduck()
-            return
-
-        self.state.tts_player.play(
-            self.state.timer_finished_sound,
-            done_callback=lambda: call_all(
-                lambda: time.sleep(1.0), self._play_timer_finished
-            ),
-        )
-
-    def connection_lost(self, exc):
-        super().connection_lost(exc)
-        _LOGGER.info("Disconnected from Home Assistant")
-
-
-def process_audio(state: ServerState):
-
-    try:
-        while True:
-            audio_chunk = state.audio_queue.get()
-            if audio_chunk is None:
-                break
-
-            if state.satellite is None:
-                continue
-
-            try:
-                state.satellite.handle_audio(audio_chunk)
-
-                if state.wake_word.is_active and state.wake_word.process_streaming(
-                    audio_chunk
-                ):
-                    state.satellite.wakeup()
-
-                if state.stop_word.is_active and state.stop_word.process_streaming(
-                    audio_chunk
-                ):
-                    state.satellite.stop()
-            except Exception:
-                _LOGGER.exception("Unexpected error handling audio")
-
-    except Exception:
-        _LOGGER.exception("Unexpected error processing audio")
 
 
 # -----------------------------------------------------------------------------
@@ -372,7 +48,8 @@ async def main() -> None:
     parser.add_argument("--audio-output-device", help="mpv name for output device")
     parser.add_argument(
         "--wake-word-dir",
-        default=_WAKEWORDS_DIR,
+        default=[_WAKEWORDS_DIR],
+        action="append",
         help="Directory with wake word models (.tflite) and configs (.json)",
     )
     parser.add_argument(
@@ -380,11 +57,32 @@ async def main() -> None:
     )
     parser.add_argument("--stop-model", default="stop", help="Id of stop model")
     parser.add_argument(
+        "--refractory-seconds",
+        default=2.0,
+        type=float,
+        help="Seconds before wake word can be activated again",
+    )
+    #
+    parser.add_argument(
+        "--oww-melspectrogram-model",
+        default=_OWW_DIR / "melspectrogram.tflite",
+        help="Path to openWakeWord melspectrogram model",
+    )
+    parser.add_argument(
+        "--oww-embedding-model",
+        default=_OWW_DIR / "embedding_model.tflite",
+        help="Path to openWakeWord embedding model",
+    )
+    #
+    parser.add_argument(
         "--wakeup-sound", default=str(_SOUNDS_DIR / "wake_word_triggered.flac")
     )
     parser.add_argument(
         "--timer-finished-sound", default=str(_SOUNDS_DIR / "timer_finished.flac")
     )
+    #
+    parser.add_argument("--preferences-file", default=_REPO_DIR / "preferences.json")
+    #
     parser.add_argument(
         "--host",
         default="0.0.0.0",
@@ -402,36 +100,77 @@ async def main() -> None:
     _LOGGER.debug(args)
 
     # Load available wake words
-    wake_word_dir = Path(args.wake_word_dir)
+    wake_word_dirs = [Path(ww_dir) for ww_dir in args.wake_word_dir]
     available_wake_words: Dict[str, AvailableWakeWord] = {}
-    for model_config_path in wake_word_dir.glob("*.json"):
-        model_id = model_config_path.stem
-        if model_id == args.stop_model:
-            # Don't show stop model as an available wake word
-            continue
 
-        with open(model_config_path, "r", encoding="utf-8") as model_config_file:
-            model_config = json.load(model_config_file)
-            available_wake_words[model_id] = AvailableWakeWord(
-                id=model_id,
-                wake_word=model_config["wake_word"],
-                trained_languages=model_config.get("trained_languages", []),
-                config_path=model_config_path,
-            )
+    for wake_word_dir in wake_word_dirs:
+        for model_config_path in wake_word_dir.glob("*.json"):
+            model_id = model_config_path.stem
+            if model_id == args.stop_model:
+                # Don't show stop model as an available wake word
+                continue
+
+            with open(model_config_path, "r", encoding="utf-8") as model_config_file:
+                model_config = json.load(model_config_file)
+                model_type = model_config["type"]
+                available_wake_words[model_id] = AvailableWakeWord(
+                    id=model_id,
+                    type=WakeWordType(model_type),
+                    wake_word=model_config["wake_word"],
+                    trained_languages=model_config.get("trained_languages", []),
+                    config_path=model_config_path,
+                )
 
     _LOGGER.debug("Available wake words: %s", list(sorted(available_wake_words.keys())))
+
+    # Load preferences
+    preferences_path = Path(args.preferences_file)
+    if preferences_path.exists():
+        _LOGGER.debug("Loading preferences: %s", preferences_path)
+        with open(preferences_path, "r", encoding="utf-8") as preferences_file:
+            preferences_dict = json.load(preferences_file)
+            preferences = Preferences(**preferences_dict)
+    else:
+        preferences = Preferences()
 
     libtensorflowlite_c_path = _LIB_DIR / "libtensorflowlite_c.so"
     _LOGGER.debug("libtensorflowlite_c path: %s", libtensorflowlite_c_path)
 
     # Load wake/stop models
-    wake_config_path = wake_word_dir / f"{args.wake_model}.json"
-    _LOGGER.debug("Loading wake model: %s", wake_config_path)
-    wake_model = MicroWakeWord.from_config(wake_config_path, libtensorflowlite_c_path)
+    wake_models: Dict[str, Union[MicroWakeWord, OpenWakeWord]] = {}
+    if preferences.active_wake_words:
+        # Load preferred models
+        for wake_word_id in preferences.active_wake_words:
+            wake_word = available_wake_words.get(wake_word_id)
+            if wake_word is None:
+                _LOGGER.warning("Unrecognized wake word id: %s", wake_word_id)
+                continue
 
-    stop_config_path = wake_word_dir / f"{args.stop_model}.json"
-    _LOGGER.debug("Loading stop model: %s", stop_config_path)
-    stop_model = MicroWakeWord.from_config(stop_config_path, libtensorflowlite_c_path)
+            _LOGGER.debug("Loading wake model: %s", wake_word_id)
+            wake_models[wake_word_id] = wake_word.load(libtensorflowlite_c_path)
+
+    if not wake_models:
+        # Load default model
+        wake_word_id = args.wake_model
+        wake_word = available_wake_words[wake_word_id]
+
+        _LOGGER.debug("Loading wake model: %s", wake_word_id)
+        wake_models[wake_word_id] = wake_word.load(libtensorflowlite_c_path)
+
+    # TODO: allow openWakeWord for "stop"
+    stop_model: Optional[MicroWakeWord] = None
+    for wake_word_dir in wake_word_dirs:
+        stop_config_path = wake_word_dir / f"{args.stop_model}.json"
+        if not stop_config_path.exists():
+            continue
+
+        _LOGGER.debug("Loading stop model: %s", stop_config_path)
+        stop_model = MicroWakeWord.from_config(
+            stop_config_path, libtensorflowlite_c_path
+        )
+        break
+
+    assert stop_model is not None
 
     state = ServerState(
         name=args.name,
@@ -439,12 +178,18 @@ async def main() -> None:
         audio_queue=Queue(),
         entities=[],
         available_wake_words=available_wake_words,
-        wake_word=wake_model,
+        wake_words=wake_models,
         stop_word=stop_model,
         music_player=MpvMediaPlayer(device=args.audio_output_device),
         tts_player=MpvMediaPlayer(device=args.audio_output_device),
         wakeup_sound=args.wakeup_sound,
         timer_finished_sound=args.timer_finished_sound,
+        preferences=preferences,
+        preferences_path=preferences_path,
+        libtensorflowlite_c_path=libtensorflowlite_c_path,
+        oww_melspectrogram_path=Path(args.oww_melspectrogram_model),
+        oww_embedding_path=Path(args.oww_embedding_model),
+        refractory_seconds=args.refractory_seconds,
     )
 
     process_audio_thread = threading.Thread(
@@ -459,6 +204,10 @@ async def main() -> None:
     server = await loop.create_server(
         lambda: VoiceSatelliteProtocol(state), host=args.host, port=args.port
     )
+
+    # Auto discovery (zeroconf, mDNS)
+    discovery = HomeAssistantZeroconf(port=args.port, name=args.name)
+    await discovery.register_server()
 
     try:
         _LOGGER.debug("Opening audio input device: %s", args.audio_input_device)
@@ -481,6 +230,103 @@ async def main() -> None:
 
     _LOGGER.debug("Server stopped")
 
+
+# -----------------------------------------------------------------------------
+
+
+def process_audio(state: ServerState):
+    """Process audio chunks from the microphone."""
+
+    wake_words: List[Union[MicroWakeWord, OpenWakeWord]] = []
+    micro_features: Optional[MicroWakeWordFeatures] = None
+    micro_inputs: List[np.ndarray] = []
+
+    oww_features: Optional[OpenWakeWordFeatures] = None
+    oww_inputs: List[np.ndarray] = []
+    has_oww = False
+
+    last_active: Optional[float] = None
+
+    try:
+        while True:
+            audio_chunk = state.audio_queue.get()
+            if audio_chunk is None:
+                break
+
+            if state.satellite is None:
+                continue
+
+            if (not wake_words) or (state.wake_words_changed and state.wake_words):
+                # Update list of wake word models to process
+                state.wake_words_changed = False
+                wake_words = [ww for ww in state.wake_words.values() if ww.is_active]
+
+                has_oww = False
+                for wake_word in wake_words:
+                    if isinstance(wake_word, OpenWakeWord):
+                        has_oww = True
+
+                if micro_features is None:
+                    micro_features = MicroWakeWordFeatures(
+                        libtensorflowlite_c_path=state.libtensorflowlite_c_path,
+                    )
+
+                if has_oww and (oww_features is None):
+                    oww_features = OpenWakeWordFeatures(
+                        melspectrogram_model=state.oww_melspectrogram_path,
+                        embedding_model=state.oww_embedding_path,
+                        libtensorflowlite_c_path=state.libtensorflowlite_c_path,
+                    )
+
+            try:
+                state.satellite.handle_audio(audio_chunk)
+
+                assert micro_features is not None
+                micro_inputs.clear()
+                micro_inputs.extend(micro_features.process_streaming(audio_chunk))
+
+                if has_oww:
+                    assert oww_features is not None
+                    oww_inputs.clear()
+                    oww_inputs.extend(oww_features.process_streaming(audio_chunk))
+
+                for wake_word in wake_words:
+                    activated = False
+                    if isinstance(wake_word, MicroWakeWord):
+                        for micro_input in micro_inputs:
+                            if wake_word.process_streaming(micro_input):
+                                activated = True
+                    elif isinstance(wake_word, OpenWakeWord):
+                        for oww_input in oww_inputs:
+                            for prob in wake_word.process_streaming(oww_input):
+                                if prob > 0.5:
+                                    activated = True
+
+                    if activated:
+                        # Check refractory
+                        now = time.monotonic()
+                        if (last_active is None) or (
+                            (now - last_active) > state.refractory_seconds
+                        ):
+                            state.satellite.wakeup(wake_word)
+                            last_active = now
+
+                # Always process to keep state correct
+                stopped = False
+                for micro_input in micro_inputs:
+                    if state.stop_word.process_streaming(micro_input):
+                        stopped = True
+
+                if stopped and state.stop_word.is_active:
+                    state.satellite.stop()
+            except Exception:
+                _LOGGER.exception("Unexpected error handling audio")
+
+    except Exception:
+        _LOGGER.exception("Unexpected error processing audio")
+
+
+# -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
     asyncio.run(main())

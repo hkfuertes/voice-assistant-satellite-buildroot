@@ -4,19 +4,13 @@
 #
 ################################################################################
 
-LINUX_VOICE_ASSISTANT_VERSION = v1.0.0
+# Cambiar de tag a rama
+LINUX_VOICE_ASSISTANT_VERSION = 7a4b3e661a6fad570753ae09b3adfad3fb4fbf6f
 LINUX_VOICE_ASSISTANT_SITE = $(call github,OHF-Voice,linux-voice-assistant,$(LINUX_VOICE_ASSISTANT_VERSION))
 LINUX_VOICE_ASSISTANT_LICENSE = Apache-2.0
 LINUX_VOICE_ASSISTANT_LICENSE_FILES = LICENSE
 LINUX_VOICE_ASSISTANT_SETUP_TYPE = setuptools
 LINUX_VOICE_ASSISTANT_DEPENDENCIES = python3 portaudio mpv python-zeroconf python-numpy python-cffi python-cryptography python-protobuf python-pymicro-features python-sounddevice python-mpv
-
-# Fix upstream bug in pyproject.toml
-define LINUX_VOICE_ASSISTANT_FIX_PYPROJECT
-	sed -i 's/"python-mpv=>1,<2"/"python-mpv>=1,<2"/' $(@D)/pyproject.toml
-endef
-
-LINUX_VOICE_ASSISTANT_POST_EXTRACT_HOOKS += LINUX_VOICE_ASSISTANT_FIX_PYPROJECT
 
 # Install debug versions with extra logging
 define LINUX_VOICE_ASSISTANT_INSTALL_DEBUG_FILES
