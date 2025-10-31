@@ -1,0 +1,11 @@
+config BR2_PACKAGE_SEEED_VOICECARD
+	bool "seeed-voicecard"
+	depends on BR2_LINUX_KERNEL
+	select BR2_PACKAGE_DTC
+	select BR2_PACKAGE_DTC_PROGRAMS
+	help
+	  Kernel module and userspace utilities for the ReSpeaker 2/4/6/8-Mic
+	  array HATs. This package builds the necessary snd-soc-seeed-voicecard
+	  kernel driver.
+
+	  https://github.com/HinTak/seeed-voicecard

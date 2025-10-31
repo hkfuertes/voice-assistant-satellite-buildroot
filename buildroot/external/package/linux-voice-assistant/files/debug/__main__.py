@@ -96,7 +96,11 @@ async def main() -> None:
     )
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
+    # Formato de log con timestamp para mejor depuración
+    logging.basicConfig(
+        level=logging.DEBUG if args.debug else logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
     _LOGGER.debug(args)
 
     # Load available wake words
@@ -107,7 +111,6 @@ async def main() -> None:
         for model_config_path in wake_word_dir.glob("*.json"):
             model_id = model_config_path.stem
             if model_id == args.stop_model:
-                # Don't show stop model as an available wake word
                 continue
 
             with open(model_config_path, "r", encoding="utf-8") as model_config_file:
@@ -139,7 +142,6 @@ async def main() -> None:
     # Load wake/stop models
     wake_models: Dict[str, Union[MicroWakeWord, OpenWakeWord]] = {}
     if preferences.active_wake_words:
-        # Load preferred models
         for wake_word_id in preferences.active_wake_words:
             wake_word = available_wake_words.get(wake_word_id)
             if wake_word is None:
@@ -150,14 +152,12 @@ async def main() -> None:
             wake_models[wake_word_id] = wake_word.load(libtensorflowlite_c_path)
 
     if not wake_models:
-        # Load default model
         wake_word_id = args.wake_model
         wake_word = available_wake_words[wake_word_id]
 
         _LOGGER.debug("Loading wake model: %s", wake_word_id)
         wake_models[wake_word_id] = wake_word.load(libtensorflowlite_c_path)
 
-    # TODO: allow openWakeWord for "stop"
     stop_model: Optional[MicroWakeWord] = None
     for wake_word_dir in wake_word_dirs:
         stop_config_path = wake_word_dir / f"{args.stop_model}.json"
@@ -205,7 +205,6 @@ async def main() -> None:
         lambda: VoiceSatelliteProtocol(state), host=args.host, port=args.port
     )
 
-    # Auto discovery (zeroconf, mDNS)
     discovery = HomeAssistantZeroconf(port=args.port, name=args.name)
     await discovery.register_server()
 
@@ -246,20 +245,31 @@ def process_audio(state: ServerState):
     has_oww = False
 
     last_active: Optional[float] = None
+    
+    chunk_count = 0
 
     try:
         while True:
             audio_chunk = state.audio_queue.get()
             if audio_chunk is None:
+                _LOGGER.debug("Audio queue empty, stopping thread.")
                 break
+            
+            chunk_count += 1
+
+            if chunk_count % 50 == 0:
+                audio_array = np.frombuffer(audio_chunk, dtype=np.int16)
+                rms = np.sqrt(np.mean(np.square(audio_array.astype(np.float64))))
+                _LOGGER.debug(f"Audio chunk #{chunk_count}: size={len(audio_chunk)}, RMS energy={rms:.2f}")
 
             if state.satellite is None:
                 continue
 
             if (not wake_words) or (state.wake_words_changed and state.wake_words):
-                # Update list of wake word models to process
+                _LOGGER.debug("Updating wake word models list.")
                 state.wake_words_changed = False
                 wake_words = [ww for ww in state.wake_words.values() if ww.is_active]
+                _LOGGER.debug(f"Active wake words: {[ww.wake_word for ww in wake_words]}")
 
                 has_oww = False
                 for wake_word in wake_words:
@@ -267,11 +277,13 @@ def process_audio(state: ServerState):
                         has_oww = True
 
                 if micro_features is None:
+                    _LOGGER.debug("Initializing MicroWakeWordFeatures.")
                     micro_features = MicroWakeWordFeatures(
                         libtensorflowlite_c_path=state.libtensorflowlite_c_path,
                     )
 
                 if has_oww and (oww_features is None):
+                    _LOGGER.debug("Initializing OpenWakeWordFeatures.")
                     oww_features = OpenWakeWordFeatures(
                         melspectrogram_model=state.oww_melspectrogram_path,
                         embedding_model=state.oww_embedding_path,
@@ -296,28 +308,33 @@ def process_audio(state: ServerState):
                         for micro_input in micro_inputs:
                             if wake_word.process_streaming(micro_input):
                                 activated = True
+                                _LOGGER.info(f"--- WAKE WORD '{wake_word.wake_word}' DETECTED ---")
                     elif isinstance(wake_word, OpenWakeWord):
                         for oww_input in oww_inputs:
                             for prob in wake_word.process_streaming(oww_input):
                                 if prob > 0.5:
                                     activated = True
+                                    _LOGGER.info(f"--- WAKE WORD '{wake_word.wake_word}' DETECTED (prob={prob}) ---")
 
                     if activated:
-                        # Check refractory
                         now = time.monotonic()
                         if (last_active is None) or (
                             (now - last_active) > state.refractory_seconds
                         ):
+                            _LOGGER.info(f"Refractory period passed. Sending wakeup to satellite for '{wake_word.wake_word}'.")
                             state.satellite.wakeup(wake_word)
                             last_active = now
+                        else:
+                            _LOGGER.debug(f"Wake word detected, but in refractory period. Ignoring.")
 
-                # Always process to keep state correct
                 stopped = False
                 for micro_input in micro_inputs:
                     if state.stop_word.process_streaming(micro_input):
                         stopped = True
+                        _LOGGER.info("--- STOP WORD DETECTED ---")
 
                 if stopped and state.stop_word.is_active:
+                    _LOGGER.info("Sending stop signal to satellite.")
                     state.satellite.stop()
             except Exception:
                 _LOGGER.exception("Unexpected error handling audio")
@@ -325,8 +342,10 @@ def process_audio(state: ServerState):
     except Exception:
         _LOGGER.exception("Unexpected error processing audio")
 
-
 # -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        pass

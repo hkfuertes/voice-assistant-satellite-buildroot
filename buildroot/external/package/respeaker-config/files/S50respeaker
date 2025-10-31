@@ -1,26 +1,19 @@
 #!/bin/sh
-#
-# ReSpeaker 2-Mic HAT v1 ALSA Setup
-#
-
-DAEMON="setup-respeaker-v1.sh"
 
 case "$1" in
   start)
-	printf "Configuring ReSpeaker 2-Mic HAT v1: "
-	/usr/local/bin/$DAEMON
-	[ $? = 0 ] && echo "OK" || echo "FAIL"
-	;;
+    echo "Configuring ReSpeaker 2-Mic ALSA..."
+    
+    alsactl restore 2>/dev/null || true
+    
+    echo "ReSpeaker 2-Mic ready"
+    ;;
   stop)
-	# Nothing to stop
-	;;
-  restart|reload)
-	"$0" stop
-	"$0" start
-	;;
+    ;;
   *)
-	echo "Usage: $0 {start|stop|restart}"
-	exit 1
+    echo "Usage: $0 {start|stop}"
+    exit 1
+    ;;
 esac
 
-exit $?
+exit 0
