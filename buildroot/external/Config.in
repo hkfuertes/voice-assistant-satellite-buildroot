@@ -15,5 +15,3 @@ source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/wyoming-microwakeword/Config.
 source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/wyoming-openwakeword/Config.in"
 source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/wyoming-satellite/Config.in"
 source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/tensorflow-lite-c/Config.in"
-source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/respeaker/Config.in"
-source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/seeed-voicecard/Config.in"
