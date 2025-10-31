@@ -1,2 +1,0 @@
-Successfully built linux-voice-assistant pymicro-features
-Installing collected packages: ifaddr, zeroconf, python-mpv, pymicro-features, pycparser, protobuf, numpy, async-interrupt, aiohappyeyeballs, CFFI, sounddevice, cryptography, noiseprotocol, chacha20poly1305-reuseable, aioesphomeapi, linux-voice-assistant

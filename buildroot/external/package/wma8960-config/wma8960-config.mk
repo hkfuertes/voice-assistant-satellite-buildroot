@@ -10,25 +10,6 @@ RESPEAKER_CONFIG_DEPENDENCIES = linux
 
 RESPEAKER_CONFIG_SOURCE = 
 
-define RESPEAKER_CONFIG_CHECK_KERNEL_CONFIG
-	if [ ! -f $(LINUX_DIR)/.config ]; then \
-		echo "ERROR: Linux kernel not configured"; \
-		exit 1; \
-	fi; \
-	if ! grep -q "CONFIG_SND_SOC_WM8960=m" $(LINUX_DIR)/.config && \
-	   ! grep -q "CONFIG_SND_SOC_WM8960=y" $(LINUX_DIR)/.config; then \
-		echo ""; \
-		echo "ERROR: respeaker-config requires CONFIG_SND_SOC_WM8960 in kernel"; \
-		echo "Please enable it via: make linux-menuconfig"; \
-		echo "Or add package/respeaker-config/linux.fragment to"; \
-		echo "BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES"; \
-		echo ""; \
-		exit 1; \
-	fi
-endef
-
-RESPEAKER_CONFIG_PRE_BUILD_HOOKS += RESPEAKER_CONFIG_CHECK_KERNEL_CONFIG
-
 define RESPEAKER_CONFIG_INSTALL_TARGET_CMDS
 	# Install ALSA configuration
 	$(INSTALL) -D -m 0644 $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/package/respeaker-config/files/asound.conf \

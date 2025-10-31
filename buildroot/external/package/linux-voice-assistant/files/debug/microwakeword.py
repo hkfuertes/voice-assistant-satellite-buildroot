@@ -1,8 +1,7 @@
 import ctypes
 import json
-import statistics
-import time
 import logging
+import statistics
 from collections import deque
 from collections.abc import Iterable
 from pathlib import Path
@@ -13,12 +12,7 @@ from pymicro_features import MicroFrontend
 
 from .wakeword import TfLiteWakeWord
 
-# Config logging (usa env DEBUG para verbose)
-logging.basicConfig(
-    level=logging.DEBUG if os.getenv('DEBUG', '0') == '1' else logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
-)
-logger = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__name__)
 
 SAMPLES_PER_SECOND = 16000
 SAMPLES_PER_CHUNK = 160  # 10ms
@@ -39,7 +33,7 @@ class MicroWakeWord(TfLiteWakeWord):
         trained_languages: List[str],
         libtensorflowlite_c_path: Union[str, Path],
     ) -> None:
-        super().__init__(libtensorflowlite_c_path)  # TfLiteWakeWord.__init__(self, libtensorflowlite_c_path)
+        TfLiteWakeWord.__init__(self, libtensorflowlite_c_path)
 
         self.id = id
         self.wake_word = wake_word
@@ -52,127 +46,124 @@ class MicroWakeWord(TfLiteWakeWord):
 
         # Load the model and create interpreter
         self.model_path = str(Path(tflite_model).resolve()).encode("utf-8")
+        _LOGGER.debug(
+            "[MWW:init] id=%s wake='%s' model=%s cutoff=%.3f window=%d langs=%s",
+            self.id,
+            self.wake_word,
+            self.model_path.decode('utf-8', errors='ignore'),
+            self.probability_cutoff,
+            self.sliding_window_size,
+            self.trained_languages,
+        )
         self._load_model()
 
         self._features: List[np.ndarray] = []
         self._probabilities: Deque[float] = deque(maxlen=self.sliding_window_size)
         self._audio_buffer = bytes()
-        
-        logger.debug(f"MicroWakeWord init completado: id={id}, wake_word={wake_word}, model={tflite_model}, cutoff={probability_cutoff}, window={sliding_window_size}, langs={trained_languages}")
 
     def _load_model(self) -> None:
-        start_time = time.time()
-        logger.info(f"Cargando modelo TFLite: {self.model_path.decode('utf-8')}")
-        try:
-            self.model = self.lib.TfLiteModelCreateFromFile(self.model_path)
-            if self.model is None:
-                raise RuntimeError(f"Fallo en TfLiteModelCreateFromFile: Modelo inválido o no encontrado ({self.model_path.decode('utf-8')})")
-            logger.debug(f"Modelo TFLite creado exitosamente")
+        self.model = self.lib.TfLiteModelCreateFromFile(self.model_path)
+        self.interpreter = self.lib.TfLiteInterpreterCreate(self.model, None)
+        self.lib.TfLiteInterpreterAllocateTensors(self.interpreter)
 
-            self.interpreter = self.lib.TfLiteInterpreterCreate(self.model, None)
-            if self.interpreter is None:
-                raise RuntimeError("Fallo en TfLiteInterpreterCreate")
-            logger.debug(f"Interpreter creado")
+        # Access input and output tensor
+        self.input_tensor = self.lib.TfLiteInterpreterGetInputTensor(
+            self.interpreter, 0
+        )
+        self.output_tensor = self.lib.TfLiteInterpreterGetOutputTensor(
+            self.interpreter, 0
+        )
 
-            self.lib.TfLiteInterpreterAllocateTensors(self.interpreter)
-            logger.debug(f"Tensores asignados")
+        # Get quantization parameters
+        input_q = self.lib.TfLiteTensorQuantizationParams(self.input_tensor)
+        output_q = self.lib.TfLiteTensorQuantizationParams(self.output_tensor)
 
-            # Access input and output tensor
-            self.input_tensor = self.lib.TfLiteInterpreterGetInputTensor(self.interpreter, 0)
-            self.output_tensor = self.lib.TfLiteInterpreterGetOutputTensor(self.interpreter, 0)
-            if self.input_tensor is None or self.output_tensor is None:
-                raise RuntimeError("Tensores input/output no válidos")
+        self.input_scale, self.input_zero_point = input_q.scale, input_q.zero_point
+        self.output_scale, self.output_zero_point = output_q.scale, output_q.zero_point
 
-            # Get tensor details for debug
-            input_details = self.lib.TfLiteTensorNumDims(self.input_tensor)
-            output_details = self.lib.TfLiteTensorNumDims(self.output_tensor)
-            input_size = self.lib.TfLiteTensorByteSize(self.input_tensor)
-            output_size = self.lib.TfLiteTensorByteSize(self.output_tensor)
-            logger.debug(f"Input tensor: dims={input_details}, size={input_size} bytes")
-            logger.debug(f"Output tensor: dims={output_details}, size={output_size} bytes")
+        in_bytes = self.lib.TfLiteTensorByteSize(self.input_tensor)
+        out_bytes = self.lib.TfLiteTensorByteSize(self.output_tensor)
+        _LOGGER.debug(
+            "[MWW:load] q_in scale=%.6g zero=%d | q_out scale=%.6g zero=%d | io_bytes in=%d out=%d",
+            self.input_scale, self.input_zero_point,
+            self.output_scale, self.output_zero_point,
+            in_bytes, out_bytes
+        )
 
-            # Get quantization parameters
-            input_q = self.lib.TfLiteTensorQuantizationParams(self.input_tensor)
-            output_q = self.lib.TfLiteTensorQuantizationParams(self.output_tensor)
-
-            self.input_scale, self.input_zero_point = input_q.scale, input_q.zero_point
-            self.output_scale, self.output_zero_point = output_q.scale, output_q.zero_point
-            logger.debug(f"Quant params - Input: scale={self.input_scale}, zp={self.input_zero_point}; Output: scale={self.output_scale}, zp={self.output_zero_point}")
-
-            load_time = time.time() - start_time
-            logger.info(f"Modelo cargado en {load_time:.3f}s")
-        except Exception as e:
-            logger.error(f"Error cargando modelo: {e}")
-            raise
-
-    @classmethod
+    @staticmethod
     def from_config(
-        cls,
         config_path: Union[str, Path],
         libtensorflowlite_c_path: Union[str, Path],
     ) -> "MicroWakeWord":
-        """Load a microWakeWord model from a JSON config file."""
-        start_time = time.time()
+        """Load a microWakeWord model from a JSON config file.
+
+        Parameters
+        ----------
+        config_path: str or Path
+            Path to JSON configuration file
+        """
         config_path = Path(config_path)
-        logger.info(f"Cargando config desde {config_path}")
-        try:
-            with open(config_path, "r", encoding="utf-8") as config_file:
-                config = json.load(config_file)
-            logger.debug(f"Config cargada: {json.dumps(config, indent=2)}")  # Log completo para debug
+        with open(config_path, "r", encoding="utf-8") as config_file:
+            config = json.load(config_file)
 
-            micro_config = config["micro"]
+        micro_config = config["micro"]
 
-            instance = cls(
-                id=Path(config["model"]).stem,
-                wake_word=config["wake_word"],
-                tflite_model=config_path.parent / config["model"],
-                probability_cutoff=micro_config["probability_cutoff"],
-                sliding_window_size=micro_config["sliding_window_size"],
-                trained_languages=micro_config.get("trained_languages", []),
-                libtensorflowlite_c_path=libtensorflowlite_c_path,
-            )
-            load_time = time.time() - start_time
-            logger.info(f"Instancia MicroWakeWord creada desde config en {load_time:.3f}s")
-            return instance
-        except Exception as e:
-            logger.error(f"Error en from_config: {e}")
-            raise
+        return MicroWakeWord(
+            id=Path(config["model"]).stem,
+            wake_word=config["wake_word"],
+            tflite_model=config_path.parent / config["model"],
+            probability_cutoff=micro_config["probability_cutoff"],
+            sliding_window_size=micro_config["sliding_window_size"],
+            trained_languages=micro_config.get("trained_languages", []),
+            libtensorflowlite_c_path=libtensorflowlite_c_path,
+        )
 
     def process_streaming(self, features: np.ndarray) -> bool:
-        start_time = time.time()
-        logger.debug(f"Procesando features: shape={features.shape}, min={features.min():.4f}, max={features.max():.4f}, mean={features.mean():.4f}")
+        # Saneamiento y logs de features de entrada
+        try:
+            f = features.astype(np.float32, copy=False)
+            has_nan = bool(np.isnan(f).any())
+            has_inf = bool(np.isinf(f).any())
+            fmin = float(np.min(f)) if f.size else float("nan")
+            fmax = float(np.max(f)) if f.size else float("nan")
+            fmean = float(np.mean(f)) if f.size else float("nan")
+            _LOGGER.debug(
+                "[MWW:feat] in shape=%s len=%d min=%.3f max=%.3f mean=%.3f nan=%s inf=%s",
+                tuple(f.shape), f.size, fmin, fmax, fmean, has_nan, has_inf
+            )
+        except Exception as e:
+            _LOGGER.debug("[MWW:feat] feature log error: %r", e)
 
         self._features.append(features)
 
         if len(self._features) < STRIDE:
-            logger.debug(f"Features insuficientes: {len(self._features)} < {STRIDE}. No inference")
+            _LOGGER.debug("[MWW] waiting for stride: %d/%d", len(self._features), STRIDE)
             return False
 
         # Allocate and quantize input data
-        concat_features = np.concatenate(self._features, axis=1)
-        logger.debug(f"Concat features: shape={concat_features.shape}, min={concat_features.min():.4f}, max={concat_features.max():.4f}")
+        concat = np.concatenate(self._features, axis=1)
+        self._features.clear()
+        _LOGGER.debug("[MWW] concat shape=%s", tuple(concat.shape))
 
         quant_features = np.round(
-            concat_features / self.input_scale + self.input_zero_point
+            concat / self.input_scale + self.input_zero_point
         ).astype(np.uint8)
-        logger.debug(f"Quant features: min={quant_features.min()}, max={quant_features.max()}, dtype={quant_features.dtype}")
+
+        try:
+            qmin = int(quant_features.min()) if quant_features.size else -1
+            qmax = int(quant_features.max()) if quant_features.size else -1
+            _LOGGER.debug("[MWW:q] qmin=%d qmax=%d nbytes=%d", qmin, qmax, quant_features.nbytes)
+        except Exception as e:
+            _LOGGER.debug("[MWW:q] stats error: %r", e)
 
         # Stride instead of rolling
-        self._features.clear()
-        logger.debug(f"Features cleared. Buffer size ahora: 0")
-
-        # Set tensor
         quant_ptr = quant_features.ctypes.data_as(ctypes.c_void_p)
         self.lib.TfLiteTensorCopyFromBuffer(
             self.input_tensor, quant_ptr, quant_features.nbytes
         )
-        logger.debug("Input tensor copiado")
 
         # Run inference
-        infer_start = time.time()
         self.lib.TfLiteInterpreterInvoke(self.interpreter)
-        infer_time = time.time() - infer_start
-        logger.debug(f"Inference ejecutada en {infer_time:.3f}s")
 
         # Read output
         output_bytes = self.lib.TfLiteTensorByteSize(self.output_tensor)
@@ -187,32 +178,21 @@ class MicroWakeWord(TfLiteWakeWord):
         result = (
             output_data.astype(np.float32) - self.output_zero_point
         ) * self.output_scale
-        probability = result.item()
-        logger.debug(f"Output raw: {output_data}, dequant: {probability:.4f}")
+        prob = float(result.item()) if result.size else float("nan")
+        self._probabilities.append(prob)
 
-        self._probabilities.append(probability)
-        logger.debug(f"Probabilidad agregada: {probability:.4f}. Queue size: {len(self._probabilities)}, maxlen={self.sliding_window_size}")
+        avgp = statistics.mean(self._probabilities) if len(self._probabilities) else float("nan")
+        _LOGGER.debug("[MWW:out] prob=%.3f avg(%d)=%.3f", prob, self.sliding_window_size, avgp)
 
         if len(self._probabilities) < self.sliding_window_size:
-            logger.debug(f"Probabilidades insuficientes: {len(self._probabilities)} < {self.sliding_window_size}")
+            # Not enough probabilities
             return False
 
-        mean_prob = statistics.mean(self._probabilities)
-        logger.info(f"Mean probability: {mean_prob:.4f} (cutoff: {self.probability_cutoff:.4f})")
+        if avgp > self.probability_cutoff:
+            _LOGGER.debug("[MWW:TRIGGER] avg=%.3f > cutoff=%.3f", avgp, self.probability_cutoff)
+            return True
 
-        detection = mean_prob > self.probability_cutoff
-        if detection:
-            logger.warning(f"WAKE WORD DETECTADO! Mean prob: {mean_prob:.4f} > {self.probability_cutoff}")
-            # Opcional: Log últimos probs para análisis
-            logger.debug(f"Últimas probs: {list(self._probabilities)}")
-        else:
-            if logger.level == logging.DEBUG:
-                logger.debug(f"No detección: {mean_prob:.4f} <= {self.probability_cutoff}")
-
-        process_time = time.time() - start_time
-        logger.debug(f"Process_streaming completado en {process_time:.3f}s")
-
-        return detection
+        return False
 
 
 # -----------------------------------------------------------------------------
@@ -223,51 +203,58 @@ class MicroWakeWordFeatures(TfLiteWakeWord):
         self,
         libtensorflowlite_c_path: Union[str, Path],
     ) -> None:
-        super().__init__(libtensorflowlite_c_path)  # TfLiteWakeWord.__init__(self, libtensorflowlite_c_path)
+        TfLiteWakeWord.__init__(self, libtensorflowlite_c_path)
 
         self._audio_buffer = bytes()
         self._frontend = MicroFrontend()
-        logger.debug(f"MicroWakeWordFeatures init: lib={libtensorflowlite_c_path}")
+        _LOGGER.debug("[MWWF:init] MicroFrontend creado")
 
     def process_streaming(self, audio_bytes: bytes) -> Iterable[np.ndarray]:
-        start_time = time.time()
-        logger.debug(f"Procesando audio bytes: len={len(audio_bytes)} (total buffer: {len(self._audio_buffer) + len(audio_bytes)} bytes)")
-
         self._audio_buffer += audio_bytes
-        logger.debug(f"Buffer actualizado: len={len(self._audio_buffer)} bytes")
+        _LOGGER.debug("[MWWF:audio] buf_len=%d chunk_in=%d", len(self._audio_buffer), len(audio_bytes))
 
         if len(self._audio_buffer) < BYTES_PER_CHUNK:
-            logger.debug(f"Audio insuficiente para chunk: {len(self._audio_buffer)} < {BYTES_PER_CHUNK}")
+            # Not enough audio to get features
             return
 
         audio_buffer_idx = 0
-        features_yielded = 0
         while (audio_buffer_idx + BYTES_PER_CHUNK) <= len(self._audio_buffer):
             # Process chunk
             chunk_bytes = self._audio_buffer[
                 audio_buffer_idx : audio_buffer_idx + BYTES_PER_CHUNK
             ]
-            logger.debug(f"Procesando chunk: len={len(chunk_bytes)} bytes (idx={audio_buffer_idx})")
+
+            # Log del PCM de entrada (RMS/mean) para detectar DC o clipping
+            try:
+                pcm = np.frombuffer(chunk_bytes, dtype="<i2")
+                rms = float(np.sqrt(np.mean(pcm.astype(np.float32) ** 2)))
+                mean = float(np.mean(pcm))
+                _LOGGER.debug("[MWWF:pcm] samples=%d rms=%.1f mean=%.1f", pcm.size, rms, mean)
+            except Exception as e:
+                _LOGGER.debug("[MWWF:pcm] stats error: %r", e)
 
             frontend_result = self._frontend.ProcessSamples(chunk_bytes)
-            samples_read = frontend_result.samples_read * BYTES_PER_SAMPLE
-            audio_buffer_idx += samples_read
-            logger.debug(f"Frontend procesado: samples_read={frontend_result.samples_read}, features_len={len(frontend_result.features) if frontend_result.features else 0}")
+            audio_buffer_idx += frontend_result.samples_read * BYTES_PER_SAMPLE
 
             if not frontend_result.features:
-                logger.debug("No features en esta ventana (audio insuficiente)")
+                # Not enough audio for a full window
+                _LOGGER.debug("[MWWF:feat] insuficiente: samples_read=%d", frontend_result.samples_read)
                 continue
 
-            features = np.array(frontend_result.features).reshape(
+            feats = np.array(frontend_result.features).reshape(
                 (1, 1, len(frontend_result.features))
             )
-            logger.debug(f"Features yield: shape={features.shape}, min={features.min():.4f}, max={features.max():.4f}, mean={features.mean():.4f}")
-            yield features
-            features_yielded += 1
 
-        logger.debug(f"Features yield total en esta llamada: {features_yielded}. Buffer restante: {len(self._audio_buffer) - audio_buffer_idx} bytes")
+            try:
+                f = feats.reshape(-1).astype(np.float32)
+                _LOGGER.debug(
+                    "[MWWF:feat] len=%d min=%.3f max=%.3f mean=%.3f",
+                    f.size, float(np.min(f)), float(np.max(f)), float(np.mean(f))
+                )
+            except Exception as e:
+                _LOGGER.debug("[MWWF:feat] stats error: %r", e)
+
+            yield feats
 
         # Remove processed audio
         self._audio_buffer = self._audio_buffer[audio_buffer_idx:]
-        process_time = time.time() - start_time
-        logger.debug(f"Audio processing completado en {process_time:.3f}s (yielded {features_yielded} features)")
