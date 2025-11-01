@@ -1,0 +1,7 @@
+PYTHON_NOISEPROTOCOL_VERSION = 0.3.1
+PYTHON_NOISEPROTOCOL_SOURCE = noiseprotocol-$(PYTHON_NOISEPROTOCOL_VERSION).tar.gz
+PYTHON_NOISEPROTOCOL_SITE = https://files.pythonhosted.org/packages/source/n/noiseprotocol
+PYTHON_NOISEPROTOCOL_LICENSE = MIT
+PYTHON_NOISEPROTOCOL_SETUP_TYPE = setuptools
+PYTHON_NOISEPROTOCOL_DEPENDENCIES = python3 python-cryptography
+$(eval $(python-package))

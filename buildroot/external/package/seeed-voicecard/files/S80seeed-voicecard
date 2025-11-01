@@ -1,0 +1,46 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          alsactl-restore
+# Required-Start:    $local_fs
+# Required-Stop:     $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Restore ALSA mixer state at boot
+### END INIT INFO
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+STATE_FILE="/var/lib/alsa/asound.state"
+
+case "$1" in
+  start)
+    if command -v alsactl >/dev/null 2>&1; then
+      if [ -f "$STATE_FILE" ]; then
+        echo "Restoring ALSA state from $STATE_FILE"
+        alsactl -E HOME=/root -I -f "$STATE_FILE" restore
+      else
+        echo "ALSA state file not found: $STATE_FILE"
+      fi
+    fi
+    ;;
+  stop)
+    if command -v alsactl >/div/null 2>&1; then
+      mkdir -p "$(dirname "$STATE_FILE")"
+      echo "Saving ALSA state to $STATE_FILE"
+      alsactl -E HOME=/root store
+    fi
+    ;;
+  restart|reload|force-reload)
+    "$0" stop
+    "$0" start
+    ;;
+  status)
+    [ -f "$STATE_FILE" ] && { echo "OK: $STATE_FILE"; exit 0; }
+    echo "Missing: $STATE_FILE"; exit 3
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+    ;;
+esac
+
+exit 0

@@ -1,49 +1,40 @@
 config BR2_PACKAGE_WYOMING_SATELLITE
-	bool "wyoming-satellite"
-	depends on BR2_PACKAGE_PYTHON3
-	depends on BR2_PACKAGE_ALSA_LIB
-	select BR2_PACKAGE_PYTHON_NUMPY
-	select BR2_PACKAGE_PYTHON_SPIDEV
-	select BR2_PACKAGE_PYTHON_ZEROCONF
-	select BR2_PACKAGE_HOST_PYTHON_PIP
-	help
-	  Wyoming protocol satellite for remote voice assistant.
-	  
-	  Voice satellite for Home Assistant using Wyoming protocol.
-	  Streams audio to/from a remote voice assistant server.
-	  
-	  https://github.com/rhasspy/wyoming-satellite
+    bool "python-wyoming-satellite"
+    depends on BR2_PACKAGE_PYTHON3
+    select BR2_PACKAGE_PYTHON_SPIDEV
+    select BR2_PACKAGE_PYTHON_NUMPY
+    select BR2_PACKAGE_PYTHON_ZEROCONF
+    select BR2_PACKAGE_ALSA_LIB
+    select BR2_PACKAGE_ALSA_UTILS
+    select BR2_PACKAGE_PYTHON_WYOMING
+    select BR2_PACKAGE_PYTHON_PYRING_BUFFER
+    help
+      Wyoming Satellite is a voice assistant client that connects
+      to a Wyoming server for voice recognition and synthesis.
+      
+      https://github.com/rhasspy/wyoming-satellite
 
 if BR2_PACKAGE_WYOMING_SATELLITE
+    config BR2_PACKAGE_WYOMING_SATELLITE_NAME
+        string "Satellite name"
+        default "wyoming-satellite"
+        help
+          Name of the satellite instance
 
-config BR2_PACKAGE_WYOMING_SATELLITE_LEDS
-	bool "Enable ReSpeaker 2-Mic LED support"
-	depends on BR2_PACKAGE_RESPEAKER_CONFIG
-	help
-	  Enable LED feedback for ReSpeaker 2-Mic HAT.
-	  Requires ReSpeaker drivers and SPI support.
+    config BR2_PACKAGE_WYOMING_SATELLITE_WAKE_URI
+        string "Wake word server URI"
+        default "tcp://127.0.0.1:10400"
+        help
+          URI of the wake word server
 
-config BR2_PACKAGE_WYOMING_SATELLITE_NAME
-	string "Satellite name"
-	default "AssistPi"
-	help
-	  Name for the Wyoming Satellite instance.
+    config BR2_PACKAGE_WYOMING_SATELLITE_WAKE_WORD
+        string "Wake word"
+        default "ok wyoming"
+        help
+          Wake word to detect
 
-config BR2_PACKAGE_WYOMING_SATELLITE_WAKE_URI
-	string "Wake word service URI"
-	default "tcp://127.0.0.1:10400"
-	help
-	  URI of the wake word detection service.
-	  Set to empty to disable wake word detection.
-
-config BR2_PACKAGE_WYOMING_SATELLITE_WAKE_WORD
-	string "Wake word"
-	default "ok_nabu"
-	depends on BR2_PACKAGE_WYOMING_SATELLITE_WAKE_URI != ""
-	help
-	  Wake word to use (ok_nabu, alexa, hey_jarvis, etc.).
-
+    config BR2_PACKAGE_WYOMING_SATELLITE_LEDS
+        bool "Enable LED support"
+        help
+          Enable LED support (requires rpi-lgpio, gpiozero, colorzero)
 endif
-
-comment "wyoming-satellite needs Python3 and ALSA lib"
-	depends on !BR2_PACKAGE_PYTHON3 || !BR2_PACKAGE_ALSA_LIB

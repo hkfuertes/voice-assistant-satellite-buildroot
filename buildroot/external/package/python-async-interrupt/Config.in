@@ -1,0 +1,4 @@
+config BR2_PACKAGE_PYTHON_ASYNC_INTERRUPT
+	bool "python-async-interrupt"
+	help
+	  Interrupt context manager for asyncio

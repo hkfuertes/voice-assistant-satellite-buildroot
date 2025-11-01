@@ -1,0 +1,9 @@
+config BR2_PACKAGE_PYTHON_WYOMING
+    bool "python-wyoming"
+    depends on BR2_PACKAGE_PYTHON3
+    help
+      Wyoming is a peer-to-peer protocol for voice assistants.
+      Used in Rhasspy and Home Assistant for communication with
+      voice services.
+      
+      https://github.com/OHF-Voice/wyoming
