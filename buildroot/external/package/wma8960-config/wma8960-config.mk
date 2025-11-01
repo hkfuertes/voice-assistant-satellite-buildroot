@@ -4,6 +4,8 @@
 #
 ################################################################################
 
+# https://github.com/waveshareteam/WM8960-Audio-HAT
+
 RESPEAKER_CONFIG_VERSION = 1.0
 RESPEAKER_CONFIG_LICENSE = MIT
 RESPEAKER_CONFIG_DEPENDENCIES = linux

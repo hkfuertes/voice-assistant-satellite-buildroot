@@ -1,0 +1,8 @@
+config BR2_PACKAGE_PYTHON_PYRING_BUFFER
+    bool "python-pyring-buffer"
+    depends on BR2_PACKAGE_PYTHON3
+    help
+      A pure Python ring/circular buffer for bytes.
+      Commonly used with Wyoming and Rhasspy for audio buffering.
+      
+      https://github.com/rhasspy/pyring-buffer

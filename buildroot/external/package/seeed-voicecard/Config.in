@@ -3,6 +3,8 @@ config BR2_PACKAGE_SEEED_VOICECARD
 	select BR2_PACKAGE_DTC
 	select BR2_PACKAGE_DTC_PROGRAMS
 	select BR2_PACKAGE_HOST_DTC
+	select BR2_PACKAGE_BASH
+	select BR2_PACKAGE_RPI_UTILS
 	help
 	  The ReSpeaker series is a family of 
 	  development boards designed to enable 
