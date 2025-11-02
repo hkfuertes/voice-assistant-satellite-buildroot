@@ -9,7 +9,18 @@ LINUX_VOICE_ASSISTANT_SITE = $(call github,OHF-Voice,linux-voice-assistant,$(LIN
 LINUX_VOICE_ASSISTANT_LICENSE = Apache-2.0
 LINUX_VOICE_ASSISTANT_LICENSE_FILES = LICENSE
 LINUX_VOICE_ASSISTANT_SETUP_TYPE = setuptools
-LINUX_VOICE_ASSISTANT_DEPENDENCIES = python3 portaudio mpv python-zeroconf python-numpy python-cffi python-cryptography python-protobuf python-pymicro-features python-sounddevice python-mpv 
+LINUX_VOICE_ASSISTANT_DEPENDENCIES = python3 \
+    portaudio \
+    mpv \
+    python-zeroconf \
+    python-numpy \
+    python-cffi \
+    python-cryptography \
+    python-protobuf \
+    python-pymicro-features \
+    python-sounddevice \
+    python-mpv \
+    tensorflow-lite 
 
 # Install debug versions with extra logging
 define LINUX_VOICE_ASSISTANT_INSTALL_DEBUG_FILES
@@ -36,7 +47,9 @@ LINUX_VOICE_ASSISTANT_POST_INSTALL_TARGET_HOOKS += LINUX_VOICE_ASSISTANT_INSTALL
 # En linux-voice-assistant.mk:
 define LINUX_VOICE_ASSISTANT_EXTRACT_TFLITE
     mkdir -p $(TARGET_DIR)/usr/lib/python3.13/site-packages/lib/linux_arm64
-    cp -f $(@D)/lib/linux_arm64/libtensorflowlite_c.so \
+#     cp -f $(@D)/lib/linux_arm64/libtensorflowlite_c.so \
+#         $(TARGET_DIR)/usr/lib/python3.13/site-packages/lib/linux_arm64/
+    ln -sf /usr/lib/tensorflowlite.so \
         $(TARGET_DIR)/usr/lib/python3.13/site-packages/lib/linux_arm64/
 endef
 
