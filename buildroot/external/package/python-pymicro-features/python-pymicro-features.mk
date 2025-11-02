@@ -10,15 +10,7 @@ PYTHON_PYMICRO_FEATURES_SITE_METHOD = git
 PYTHON_PYMICRO_FEATURES_LICENSE = MIT
 PYTHON_PYMICRO_FEATURES_LICENSE_FILES = LICENSE
 PYTHON_PYMICRO_FEATURES_SETUP_TYPE = setuptools
-PYTHON_PYMICRO_FEATURES_DEPENDENCIES = python3 tensorflow-lite-c host-python-pybind11
-PYTHON_PYMICRO_FEATURES_BUILD_OPTS = --skip-dependency-check
+PYTHON_PYMICRO_FEATURES_DEPENDENCIES = python3 host-python-pybind11
 
-define PYTHON_PYMICRO_FEATURES_LINK_TFLITE
-	mkdir -p $(TARGET_DIR)/usr/lib/python3.13/site-packages/lib/linux_arm64
-	ln -sf /usr/lib/libtensorflowlite_c.so \
-		$(TARGET_DIR)/usr/lib/python3.13/site-packages/lib/linux_arm64/libtensorflowlite_c.so
-endef
-
-PYTHON_PYMICRO_FEATURES_POST_INSTALL_TARGET_HOOKS += PYTHON_PYMICRO_FEATURES_LINK_TFLITE
 
 $(eval $(python-package))

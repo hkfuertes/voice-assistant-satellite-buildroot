@@ -197,14 +197,7 @@ async def main() -> None:
     )
     process_audio_thread.start()
 
-    blk_counter = 0
-
     def sd_callback(indata, _frames, _time, _status):
-        nonlocal blk_counter
-        if _status:
-            _LOGGER.debug("[SD] status=%s", _status)
-        blk_counter += 1
-        _LOGGER.debug("[SD] blk=%d bytes=%d", blk_counter, len(indata))
         state.audio_queue.put_nowait(bytes(indata))
 
     loop = asyncio.get_running_loop()
@@ -253,16 +246,12 @@ def process_audio(state: ServerState):
     has_oww = False
 
     last_active: Optional[float] = None
-    proc_blk = 0
 
     try:
         while True:
             audio_chunk = state.audio_queue.get()
             if audio_chunk is None:
                 break
-
-            proc_blk += 1
-            _LOGGER.debug("[PROC] blk=%d bytes=%d queue=%d", proc_blk, len(audio_chunk), state.audio_queue.qsize())
 
             if state.satellite is None:
                 continue
@@ -271,15 +260,16 @@ def process_audio(state: ServerState):
                 # Update list of wake word models to process
                 state.wake_words_changed = False
                 wake_words = [ww for ww in state.wake_words.values() if ww.is_active]
-                _LOGGER.debug("[PROC] active wake models=%d", len(wake_words))
 
-                has_oww = any(isinstance(w, OpenWakeWord) for w in wake_words)
+                has_oww = False
+                for wake_word in wake_words:
+                    if isinstance(wake_word, OpenWakeWord):
+                        has_oww = True
 
                 if micro_features is None:
                     micro_features = MicroWakeWordFeatures(
                         libtensorflowlite_c_path=state.libtensorflowlite_c_path,
                     )
-                    _LOGGER.debug("[PROC] MicroWakeWordFeatures inicializado")
 
                 if has_oww and (oww_features is None):
                     oww_features = OpenWakeWordFeatures(
@@ -287,7 +277,6 @@ def process_audio(state: ServerState):
                         embedding_model=state.oww_embedding_path,
                         libtensorflowlite_c_path=state.libtensorflowlite_c_path,
                     )
-                    _LOGGER.debug("[PROC] OpenWakeWordFeatures inicializado")
 
             try:
                 state.satellite.handle_audio(audio_chunk)
@@ -295,13 +284,11 @@ def process_audio(state: ServerState):
                 assert micro_features is not None
                 micro_inputs.clear()
                 micro_inputs.extend(micro_features.process_streaming(audio_chunk))
-                _LOGGER.debug("[PROC] micro_inputs=%d", len(micro_inputs))
 
                 if has_oww:
                     assert oww_features is not None
                     oww_inputs.clear()
                     oww_inputs.extend(oww_features.process_streaming(audio_chunk))
-                    _LOGGER.debug("[PROC] oww_inputs=%d", len(oww_inputs))
 
                 for wake_word in wake_words:
                     activated = False
@@ -309,17 +296,9 @@ def process_audio(state: ServerState):
                         for micro_input in micro_inputs:
                             if wake_word.process_streaming(micro_input):
                                 activated = True
-                        if wake_word._probabilities:
-                            _LOGGER.debug(
-                                "[PROC:MWW] last_prob=%.3f avg=%.3f win=%d",
-                                wake_word._probabilities[-1],
-                                float(np.mean(wake_word._probabilities)),
-                                wake_word.sliding_window_size,
-                            )
                     elif isinstance(wake_word, OpenWakeWord):
                         for oww_input in oww_inputs:
                             for prob in wake_word.process_streaming(oww_input):
-                                _LOGGER.debug("[PROC:OWW] prob=%.3f", prob)
                                 if prob > 0.5:
                                     activated = True
 
@@ -329,11 +308,8 @@ def process_audio(state: ServerState):
                         if (last_active is None) or (
                             (now - last_active) > state.refractory_seconds
                         ):
-                            _LOGGER.debug("[PROC] WAKE! model=%s", getattr(wake_word, "id", "oww"))
                             state.satellite.wakeup(wake_word)
                             last_active = now
-                        else:
-                            _LOGGER.debug("[PROC] refractory (%.2fs left)", state.refractory_seconds - (now - last_active))
 
                 # Always process to keep state correct
                 stopped = False
@@ -342,7 +318,6 @@ def process_audio(state: ServerState):
                         stopped = True
 
                 if stopped and state.stop_word.is_active:
-                    _LOGGER.debug("[PROC] STOP word activado")
                     state.satellite.stop()
             except Exception:
                 _LOGGER.exception("Unexpected error handling audio")
