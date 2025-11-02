@@ -12,23 +12,11 @@ if ! aplay -l | grep -q "$CARD"; then
     exit 1
 fi
 
-# Capture controls
-amixer -c "$CARD" sset 'Capture' 100% unmute cap 2>/dev/null
-amixer -c "$CARD" sset 'ADC PCM' 195 2>/dev/null
-
-# Input boost
-amixer -c "$CARD" sset 'Left Input Mixer Boost' on 2>/dev/null
-amixer -c "$CARD" sset 'Right Input Mixer Boost' on 2>/dev/null
-amixer -c "$CARD" sset 'Left Input PGA Boost' on 2>/dev/null
-amixer -c "$CARD" sset 'Right Input PGA Boost' on 2>/dev/null
-
-# Input routing
-amixer -c "$CARD" sset 'Left Input' 'MIC2' 2>/dev/null
-amixer -c "$CARD" sset 'Right Input' 'MIC2' 2>/dev/null
-
-# Playback
-amixer -c "$CARD" sset 'Playback' 100% unmute 2>/dev/null
-amixer -c "$CARD" sset 'Speaker' 100% unmute 2>/dev/null
+amixer cset numid=1 30,30      # Capture Volume
+amixer cset numid=9 3          # Left Input Boost (+29dB)
+amixer cset numid=8 3          # Right Input Boost (+29dB)
+amixer cset numid=36 195,195   # ADC PCM Capture
+amixer cset numid=19 1         # High-Pass Filter ON
 
 # Save state
 alsactl store 2>/dev/null
