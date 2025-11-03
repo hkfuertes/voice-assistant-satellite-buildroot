@@ -1,5 +1,4 @@
-# Snippet 8: test_interpreter_health.py
-# Verifica si el intérprete está vivo
+# Snippet 9: test_interpreter_health_simple.py
 
 import ctypes
 import numpy as np
@@ -15,16 +14,12 @@ def get_func(name, argtypes, restype):
     func.restype = restype
     return func
 
-# Funciones básicas
+# Solo funciones que existen
 TfLiteModelCreateFromFile = get_func("TfLiteModelCreateFromFile", [ctypes.c_char_p], ctypes.c_void_p)
 TfLiteInterpreterCreate = get_func("TfLiteInterpreterCreate", [ctypes.c_void_p, ctypes.c_void_p], ctypes.c_void_p)
 TfLiteInterpreterAllocateTensors = get_func("TfLiteInterpreterAllocateTensors", [ctypes.c_void_p], ctypes.c_int)
 TfLiteInterpreterGetInputTensor = get_func("TfLiteInterpreterGetInputTensor", [ctypes.c_void_p, ctypes.c_int], ctypes.c_void_p)
 TfLiteInterpreterGetOutputTensor = get_func("TfLiteInterpreterGetOutputTensor", [ctypes.c_void_p, ctypes.c_int], ctypes.c_void_p)
-TfLiteTensorShape = get_func("TfLiteTensorDimensions", [ctypes.c_void_p], ctypes.POINTER(ctypes.c_int))
-TfLiteTensorNumDims = get_func("TfLiteTensorNumDims", [ctypes.c_void_p], ctypes.c_int)
-TfLiteTensorType = get_func("TfLiteTensorType", [ctypes.c_void_p], ctypes.c_int)
-TfLiteTensorQuantizationParams = get_func("TfLiteTensorQuantizationParams", [ctypes.c_void_p], None)
 TfLiteTensorByteSize = get_func("TfLiteTensorByteSize", [ctypes.c_void_p], ctypes.c_int)
 TfLiteTensorCopyFromBuffer = get_func("TfLiteTensorCopyFromBuffer", [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int], ctypes.c_void_p)
 TfLiteInterpreterInvoke = get_func("TfLiteInterpreterInvoke", [ctypes.c_void_p], ctypes.c_int)
@@ -35,16 +30,10 @@ print("=== MODEL HEALTH CHECK ===\n")
 print("1. Loading model...")
 model = TfLiteModelCreateFromFile(model_path.encode('utf-8'))
 print(f"   Model pointer: {model}")
-if not model:
-    print("   ERROR: Model is NULL!")
-    exit(1)
 
 print("\n2. Creating interpreter...")
 interpreter = TfLiteInterpreterCreate(model, None)
 print(f"   Interpreter pointer: {interpreter}")
-if not interpreter:
-    print("   ERROR: Interpreter is NULL!")
-    exit(1)
 
 print("\n3. Allocating tensors...")
 alloc_result = TfLiteInterpreterAllocateTensors(interpreter)
@@ -58,52 +47,42 @@ print("\n5. Getting output tensor...")
 output_tensor = TfLiteInterpreterGetOutputTensor(interpreter, 0)
 print(f"   Output tensor pointer: {output_tensor}")
 
-print("\n6. Input tensor info:")
+print("\n6. Input tensor size:")
 input_bytes = TfLiteTensorByteSize(input_tensor)
-print(f"   Input size: {input_bytes} bytes")
+print(f"   {input_bytes} bytes")
 
-print("\n7. Output tensor info:")
+print("\n7. Output tensor size:")
 output_bytes = TfLiteTensorByteSize(output_tensor)
-print(f"   Output size: {output_bytes} bytes")
+print(f"   {output_bytes} bytes")
 
-print("\n8. Testing inference with pattern...")
-# Crea patrón: primeros 40 = 100, siguientes 40 = 150, últimos 40 = 200
+print("\n8. Testing inference with pattern (100,150,200)...")
 test_input = np.concatenate([
     np.full(40, 100, dtype=np.uint8),
     np.full(40, 150, dtype=np.uint8),
     np.full(40, 200, dtype=np.uint8)
 ])
-print(f"   Input pattern: first 40=100, mid 40=150, last 40=200")
-print(f"   Total input bytes: {len(test_input)}")
 
 input_ptr = test_input.ctypes.data_as(ctypes.c_void_p)
-copy_result = TfLiteTensorCopyFromBuffer(input_tensor, input_ptr, len(test_input))
-print(f"   Copy result: {copy_result}")
+TfLiteTensorCopyFromBuffer(input_tensor, input_ptr, len(test_input))
 
-print("\n9. Running inference...")
+print("9. Running inference...")
 invoke_result = TfLiteInterpreterInvoke(interpreter)
-print(f"   Invoke result: {invoke_result}")
+print(f"   Result code: {invoke_result}")
 
 print("\n10. Reading output...")
 output_data = np.empty(output_bytes, dtype=np.uint8)
 output_ptr = output_data.ctypes.data_as(ctypes.c_void_p)
-read_result = TfLiteTensorCopyToBuffer(output_tensor, output_ptr, output_bytes)
-print(f"    Read result: {read_result}")
-print(f"    Output raw bytes: {output_data}")
-print(f"    Output as uint8: {list(output_data)}")
+TfLiteTensorCopyToBuffer(output_tensor, output_ptr, output_bytes)
+print(f"    Output raw: {output_data}")
+print(f"    Output hex: {output_data.hex()}")
 
-# Intenta leerlo como int8 también
-output_data_int8 = output_data.astype(np.int8)
-print(f"    Output as int8: {list(output_data_int8)}")
-
-print("\n=== SUMMARY ===")
-if invoke_result == 0 and all(output_data == 0):
-    print("⚠️  Model runs but always outputs 0")
-    print("    Possibilities:")
-    print("    - Model is trained differently")
-    print("    - Binary incompatibility (musl/glibc)")
-    print("    - Output tensor is not being written")
-elif invoke_result != 0:
-    print("❌ Inference failed with error code:", invoke_result)
+print("\n=== CONCLUSION ===")
+if invoke_result == 0:
+    if all(output_data == 0):
+        print("❌ Model runs but ALWAYS outputs zero")
+        print("   This means: librería NO es compatible con Buildroot")
+        print("   Solution: Recompila TensorFlow Lite en Buildroot")
+    else:
+        print("✅ Model is working! Output changed based on input")
 else:
-    print("✅ Model is working")
+    print(f"❌ Inference failed with code: {invoke_result}")

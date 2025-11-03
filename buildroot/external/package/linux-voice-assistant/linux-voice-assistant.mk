@@ -20,19 +20,7 @@ LINUX_VOICE_ASSISTANT_DEPENDENCIES = python3 \
     python-pymicro-features \
     python-sounddevice \
     python-mpv \
-    tensorflow-lite 
-
-# Install debug versions with extra logging
-define LINUX_VOICE_ASSISTANT_INSTALL_DEBUG_FILES
-    @echo "Installing debug versions of __main__.py and microwakeword.py"
-    cp -f $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/package/linux-voice-assistant/files/debug/__main__.py \
-        $(@D)/linux_voice_assistant/__main__.py
-    cp -f $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/package/linux-voice-assistant/files/debug/microwakeword.py \
-        $(@D)/linux_voice_assistant/microwakeword.py
-endef
-
-LINUX_VOICE_ASSISTANT_POST_PATCH_HOOKS += LINUX_VOICE_ASSISTANT_INSTALL_DEBUG_FILES
-
+    tensorflow-lite
 
 # Install wakeword models
 define LINUX_VOICE_ASSISTANT_INSTALL_WAKEWORDS
@@ -49,8 +37,8 @@ define LINUX_VOICE_ASSISTANT_EXTRACT_TFLITE
     mkdir -p $(TARGET_DIR)/usr/lib/python3.13/site-packages/lib/linux_arm64
 #     cp -f $(@D)/lib/linux_arm64/libtensorflowlite_c.so \
 #         $(TARGET_DIR)/usr/lib/python3.13/site-packages/lib/linux_arm64/
-    ln -sf /usr/lib/tensorflowlite.so \
-        $(TARGET_DIR)/usr/lib/python3.13/site-packages/lib/linux_arm64/
+    ln -sf /usr/lib/tensorflow-lite.so \
+        $(TARGET_DIR)/usr/lib/python3.13/site-packages/lib/linux_arm64/libtensorflowlite_c.so
 endef
 
 LINUX_VOICE_ASSISTANT_POST_PATCH_HOOKS += LINUX_VOICE_ASSISTANT_EXTRACT_TFLITE
