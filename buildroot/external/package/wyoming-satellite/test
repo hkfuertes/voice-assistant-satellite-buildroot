@@ -1,0 +1,22 @@
+/usr/bin/wyoming-satellite \
+	--name wyoming-satellite \
+	--uri tcp://0.0.0.0:10700 \
+	--mic-command 'arecord -D sysdefault:CARD=wm8960soundcard -r 16000 -c 1 -f S16_LE -t raw' \
+	--snd-command 'aplay -D sysdefault:CARD=wm8960soundcard -r 22050 -c 1 -f S16_LE -t raw' \
+	--mic-command-samples-per-chunk 1024 \
+	--mic-noise-suppression 0 \
+	--mic-auto-gain 0 \
+	--wake-refractory-seconds 1.0 \
+	--no-zeroconf \
+	--event-uri tcp://127.0.0.1:10500 \
+	--debug
+
+
+/opt/wyoming-openwakeword/bin/wyoming-openwakeword \
+	--uri tcp://0.0.0.0:10400 \
+	--debug
+
+/usr/bin/wyoming-2mic-leds \
+	--uri tcp://127.0.0.1:10500 \
+	--led-brightness 10 \
+	--debug

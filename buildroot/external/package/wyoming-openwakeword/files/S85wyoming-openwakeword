@@ -1,25 +1,47 @@
 #!/bin/sh
-DAEMON="wyoming-openwakeword"
-PIDFILE="/var/run/$DAEMON.pid"
+
+VENV_DIR="/opt/wyoming-openwakeword"
+DAEMON="$VENV_DIR/bin/wyoming-openwakeword"
+DAEMON_NAME="wyoming-openwakeword"
+PIDFILE="/var/run/$DAEMON_NAME.pid"
+LOGFILE="/var/log/$DAEMON_NAME.log"
 
 start() {
-    printf "Starting $DAEMON: "
-    start-stop-daemon -S -q -b -m -p $PIDFILE \
-        -x /usr/bin/wyoming-openwakeword -- \
-        --uri "tcp://127.0.0.1:10400"
-    [ $? = 0 ] && echo "OK" || echo "FAIL"
+	echo "Starting $DAEMON_NAME..."
+	start-stop-daemon --start --quiet --background \
+		--pidfile $PIDFILE \
+		--make-pidfile \
+		--name $DAEMON_NAME \
+		--exec $DAEMON -- \
+		--uri tcp://0.0.0.0:10400 \
+		> $LOGFILE 2>&1
 }
 
 stop() {
-    printf "Stopping $DAEMON: "
-    start-stop-daemon -K -q -p $PIDFILE
-    [ $? = 0 ] && echo "OK" || echo "FAIL"
-    rm -f $PIDFILE
+	echo "Stopping $DAEMON_NAME..."
+	start-stop-daemon --stop --quiet --pidfile $PIDFILE
+	rm -f $PIDFILE
+}
+
+restart() {
+	stop
+	start
 }
 
 case "$1" in
-    start) start ;;
-    stop) stop ;;
-    restart|reload) stop; sleep 1; start ;;
-    *) echo "Usage: $0 {start|stop|restart}"; exit 1 ;;
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart)
+		restart
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+		;;
 esac
+
+exit $?
