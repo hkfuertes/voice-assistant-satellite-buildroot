@@ -4,13 +4,13 @@
 #
 ################################################################################
 
-PYTHON_PYMICRO_FEATURES_VERSION = v2.0.2
-PYTHON_PYMICRO_FEATURES_SITE = https://github.com/rhasspy/pymicro-features.git
-PYTHON_PYMICRO_FEATURES_SITE_METHOD = git
+PYTHON_PYMICRO_FEATURES_VERSION = 2.0.2
 PYTHON_PYMICRO_FEATURES_LICENSE = MIT
-PYTHON_PYMICRO_FEATURES_LICENSE_FILES = LICENSE
-PYTHON_PYMICRO_FEATURES_SETUP_TYPE = setuptools
-PYTHON_PYMICRO_FEATURES_DEPENDENCIES = python3
+PYTHON_PYMICRO_FEATURES_SOURCE =
 
+define PYTHON_PYMICRO_FEATURES_INSTALL_TARGET_CMDS
+	unzip -o -d $(TARGET_DIR)/usr/lib/python3.13/site-packages/ \
+		$(PYTHON_PYMICRO_FEATURES_PKGDIR)/pymicro_features-$(PYTHON_PYMICRO_FEATURES_VERSION)-cp39-abi3-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl
+endef
 
-$(eval $(python-package))
+$(eval $(generic-package))
