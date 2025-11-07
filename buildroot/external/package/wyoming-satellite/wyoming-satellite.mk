@@ -26,6 +26,7 @@ define WYOMING_SATELLITE_INSTALL_INIT_SCRIPTS
 	sed -e 's|@SATELLITE_NAME@|$(call qstrip,$(BR2_PACKAGE_WYOMING_SATELLITE_NAME))|g' \
 		-e 's|@WAKE_URI@|$(call qstrip,$(BR2_PACKAGE_WYOMING_SATELLITE_WAKE_URI))|g' \
 		-e 's|@WAKE_WORD@|$(call qstrip,$(BR2_PACKAGE_WYOMING_SATELLITE_WAKE_WORD))|g' \
+		-e 's|@ENABLE_LEDS@|$(if $(BR2_PACKAGE_WYOMING_SATELLITE_LEDS),y,n)|g' \
 		$(WYOMING_SATELLITE_PKGDIR)/files/S95wyoming-satellite.in \
 		> $(TARGET_DIR)/etc/init.d/S95wyoming-satellite
 	chmod 0755 $(TARGET_DIR)/etc/init.d/S95wyoming-satellite

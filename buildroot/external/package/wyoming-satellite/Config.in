@@ -33,7 +33,7 @@ if BR2_PACKAGE_WYOMING_SATELLITE
 
     config BR2_PACKAGE_WYOMING_SATELLITE_WAKE_WORD
         string "Wake word"
-        default "ok wyoming"
+        default "ok nabu"
         help
           Wake word to detect
 

@@ -71,8 +71,7 @@ start() {
           --mic-command-samples-per-chunk 1024 \
           --mic-noise-suppression 0 \
           --mic-auto-gain 0 \
-          --wake-refractory-seconds 1.0 \
-          --no-zeroconf" # Disable zeroconf as we are using wyoming 1.8.0!
+          --wake-refractory-seconds 1.0"
     
     # Detect wake word service (if configured)
     if [ -n "$WAKE_URI" ] && check_service 10400; then
