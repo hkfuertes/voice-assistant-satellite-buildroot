@@ -15,10 +15,9 @@ services:
   chown-fix:
     image: alpine:latest
     command: >
-      sh -c "chown -R 1000:1000 /home/builder/buildroot/dl /home/builder/buildroot/output"
+      sh -c "chown -R 1000:1000 /home/builder/buildroot/dl"
     volumes:
       - dl:/home/builder/buildroot/dl
-      - output:/home/builder/buildroot/output
     user: root
     restart: "no"
 
@@ -32,24 +31,21 @@ services:
     volumes:
       - dl:/home/builder/buildroot/dl
       - .:/repo
-      # - output:/home/builder/buildroot/output
   
-  build:
+  build-wyoming:
     <<: *buildroot
     container_name: buildroot-rpi0w2-rpi3
     command:
     - /bin/sh
     - -c
     - |
-      make raspberrypi_3_zero2w_64_defconfig &&
+      make wyoming_raspberrypi_3_zero2w_64_defconfig &&
       make && 
       cp output/images/sdcard.img.xz /repo/wyoming-satellite-rpi0w2-rpi3.img.xz
     volumes:
       - dl:/home/builder/buildroot/dl
       - .:/repo
-      - output:/home/builder/buildroot/output
 
 
 volumes:
   dl:
-  output:
