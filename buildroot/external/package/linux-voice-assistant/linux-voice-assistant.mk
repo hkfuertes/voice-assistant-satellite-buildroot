@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LINUX_VOICE_ASSISTANT_VERSION = 7a4b3e661a6fad570753ae09b3adfad3fb4fbf6f
+LINUX_VOICE_ASSISTANT_VERSION = 2b04484f4c225773130cd137c49ea443e2c6e9c5
 LINUX_VOICE_ASSISTANT_SITE = $(call github,OHF-Voice,linux-voice-assistant,$(LINUX_VOICE_ASSISTANT_VERSION))
 LINUX_VOICE_ASSISTANT_LICENSE = Apache-2.0
 LINUX_VOICE_ASSISTANT_LICENSE_FILES = LICENSE
@@ -18,7 +18,7 @@ LINUX_VOICE_ASSISTANT_DEPENDENCIES = python3 \
     python-cryptography \
     python-protobuf \
     python-pymicro-features \
-    python-sounddevice \
+    python-soundcard \
     python-mpv \
     tensorflow-lite
 

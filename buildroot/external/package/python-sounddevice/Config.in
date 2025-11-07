@@ -1,9 +1,0 @@
-config BR2_PACKAGE_PYTHON_SOUNDDEVICE
-	bool "python-sounddevice"
-	depends on BR2_PACKAGE_PYTHON3
-	select BR2_PACKAGE_PYTHON_CFFI
-	select BR2_PACKAGE_PORTAUDIO
-	help
-	  Play and Record Sound with Python
-	  
-	  https://python-sounddevice.readthedocs.io
