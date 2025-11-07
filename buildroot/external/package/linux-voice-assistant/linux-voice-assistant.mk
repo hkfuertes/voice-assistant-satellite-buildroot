@@ -25,8 +25,8 @@ LINUX_VOICE_ASSISTANT_DEPENDENCIES = python3 \
 # Install wakeword models
 define LINUX_VOICE_ASSISTANT_INSTALL_WAKEWORDS
     mkdir -p $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords
-    cp -r $(@D)/wakewords/* \
-        $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords/
+    # cp -r $(@D)/wakewords/* $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords/
+    cp -r $(LINUX_VOICE_ASSISTANT_PKGDIR)/wakewords/* $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords/
 endef
 
 LINUX_VOICE_ASSISTANT_POST_INSTALL_TARGET_HOOKS += LINUX_VOICE_ASSISTANT_INSTALL_WAKEWORDS
