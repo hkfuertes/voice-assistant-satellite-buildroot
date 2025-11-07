@@ -1,0 +1,63 @@
+config BR2_PACKAGE_LINUX_VOICE_ASSISTANT
+	bool "linux-voice-assistant"
+	depends on BR2_PACKAGE_PYTHON3
+	select BR2_PACKAGE_MPV
+	select BR2_PACKAGE_PORTAUDIO
+	select BR2_PACKAGE_TENSORFLOW_LITE
+	select BR2_PACKAGE_HOST_PYTHON_PIP
+	select BR2_PACKAGE_PYTHON_NUMPY
+	select BR2_PACKAGE_PYTHON_ZEROCONF
+	select BR2_PACKAGE_PYTHON_CFFI
+	select BR2_PACKAGE_PYTHON_CRYPTOGRAPHY
+	select BR2_PACKAGE_PYTHON_PROTOBUF
+	select BR2_PACKAGE_PYTHON_AIOESPHOMEAPI
+	select BR2_PACKAGE_PYTHON_SOUNDDEVICE
+	select BR2_PACKAGE_PYTHON_MPV
+	select BR2_PACKAGE_PYTHON_PYMICRO_FEATURES
+  	select BR2_PACKAGE_ALSA_LIB
+    select BR2_PACKAGE_ALSA_UTILS
+    select BR2_PACKAGE_ALSA_PLUGINS
+    select BR2_PACKAGE_ALSA_UTILS_ALSAUCM
+    select BR2_PACKAGE_ALSA_UTILS_ALSACONF
+    select BR2_PACKAGE_LIBSAMPLERATE
+	help
+	  Voice satellite for Home Assistant using ESPHome protocol.
+	  
+	  Runs on aarch64 and x86_64 platforms with Python 3.11+.
+	  Supports announcements, start/continue conversation, and timers.
+	  
+	  https://github.com/OHF-Voice/linux-voice-assistant
+
+if BR2_PACKAGE_LINUX_VOICE_ASSISTANT
+
+config BR2_PACKAGE_LINUX_VOICE_ASSISTANT_NAME
+	string "Satellite name"
+	default "VoiceSatellite"
+	help
+	  Name that will be available in Home Assistant.
+
+config BR2_PACKAGE_LINUX_VOICE_ASSISTANT_WAKE_MODEL
+	string "Wake word model"
+	default "ok_nabu"
+	help
+	  Wake word model to use (e.g., ok_nabu, hey_jarvis).
+	  Model file must exist in wakewords/ directory.
+
+config BR2_PACKAGE_LINUX_VOICE_ASSISTANT_AUDIO_INPUT
+	string "Audio input device"
+	default ""
+	help
+	  PortAudio input device name. Leave empty for default.
+	  Use 'python3 -m sounddevice' to list available devices.
+
+config BR2_PACKAGE_LINUX_VOICE_ASSISTANT_AUDIO_OUTPUT
+	string "Audio output device"
+	default ""
+	help
+	  MPV output device name. Leave empty for default.
+	  Use 'mpv --audio-device=help' to list available devices.
+
+endif
+
+comment "linux-voice-assistant needs Python3"
+	depends on !BR2_PACKAGE_PYTHON3

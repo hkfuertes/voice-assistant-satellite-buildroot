@@ -27,7 +27,7 @@ jobs:
 
       - name: Configure Buildroot
         working-directory: sources
-        run: make raspberrypi_3_zero2w_64_defconfig
+        run: make wyoming_raspberrypi_3_zero2w_64_defconfig
 
       - name: Build Buildroot
         working-directory: sources

@@ -1,16 +1,9 @@
 config BR2_PACKAGE_WYOMING_OPENWAKEWORD
 	bool "wyoming-openwakeword"
 	depends on BR2_PACKAGE_PYTHON3
-	select BR2_PACKAGE_PYTHON3_SSL
 	select BR2_PACKAGE_PYTHON_NUMPY
-	select BR2_PACKAGE_HOST_PYTHON_PIP
+	select BR2_PACKAGE_PYTHON_PYOPENWAKEWORD
+	select BR2_PACKAGE_PYTHON_WYOMING
 	help
-	  Wake word detection using openWakeWord for Wyoming protocol.
-	  
-	  Provides local wake word detection (ok_nabu, alexa, hey_jarvis, etc.)
-	  for voice assistants using the Wyoming protocol.
-	  
+	  Wyoming server for openWakeWord with isolated wyoming 1.8
 	  https://github.com/rhasspy/wyoming-openwakeword
-
-comment "wyoming-openwakeword needs Python3"
-	depends on !BR2_PACKAGE_PYTHON3

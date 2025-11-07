@@ -1,0 +1,37 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          seeed-voicecard
+# Required-Start:    $local_fs
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Seeed Voicecard service
+# Description:       Initialize Seeed Voicecard audio device
+### END INIT INFO
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DESC="Seeed Voicecard service"
+NAME="seeed-voicecard"
+DAEMON=/usr/bin/seeed-voicecard
+
+case "$1" in
+  start)
+    echo "Starting $DESC"
+    mount /dev/mmcblk0p1 /boot
+    mount -t configfs none /config
+    $DAEMON
+    ;;
+  stop)
+    echo "Stopping $DESC"
+    ;;
+  restart|force-reload)
+    echo "Restarting $DESC"
+    $DAEMON
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|force-reload}" >&2
+    exit 1
+    ;;
+esac
+
+exit 0
