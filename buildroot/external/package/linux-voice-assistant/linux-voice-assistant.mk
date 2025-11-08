@@ -26,13 +26,12 @@ LINUX_VOICE_ASSISTANT_DEPENDENCIES = python3 \
 define LINUX_VOICE_ASSISTANT_INSTALL_WAKEWORDS
     mkdir -p $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords
     # cp -r $(@D)/wakewords/* $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords/
-    cp -r $(LINUX_VOICE_ASSISTANT_PKGDIR)/wakewords/* $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords/
+    cp -r $(LINUX_VOICE_ASSISTANT_PKGDIR)/files/wakewords/* $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords/
 endef
 
 LINUX_VOICE_ASSISTANT_POST_INSTALL_TARGET_HOOKS += LINUX_VOICE_ASSISTANT_INSTALL_WAKEWORDS
 
 
-# En linux-voice-assistant.mk:
 define LINUX_VOICE_ASSISTANT_LINK_TFLITE
     mkdir -p $(TARGET_DIR)/usr/lib/python3.13/site-packages/lib/linux_arm64
     ln -sf /usr/lib/libtensorflow-lite.so \
@@ -41,11 +40,12 @@ endef
 
 LINUX_VOICE_ASSISTANT_POST_PATCH_HOOKS += LINUX_VOICE_ASSISTANT_LINK_TFLITE
 
-define PYTHON_LINUX_VOICE_ASSISTANT_INSTALL_INIT_SYSV
+define PYTHON_LINUX_VOICE_ASSISTANT_INSTALL_INIT
     mkdir -p $(TARGET_DIR)/etc/init.d
-	$(INSTALL) -D -m 0755 $(PYTHON_LINUX_VOICE_ASSISTANT_PKGDIR)/files/S95linux-voice-assistant.sh \
+	$(INSTALL) -D -m 0755 $(LINUX_VOICE_ASSISTANT_PKGDIR)/files/S95linux-voice-assistant.sh \
 		$(TARGET_DIR)/etc/init.d/S95linux-voice-assistant
 endef
 
+LINUX_VOICE_ASSISTANT_POST_INSTALL_TARGET_HOOKS += PYTHON_LINUX_VOICE_ASSISTANT_INSTALL_INIT
 
 $(eval $(python-package))
