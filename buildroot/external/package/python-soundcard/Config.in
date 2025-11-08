@@ -1,0 +1,12 @@
+config BR2_PACKAGE_PYTHON_SOUNDCARD
+	bool "python-soundcard"
+	depends on BR2_PACKAGE_PYTHON3
+	select BR2_PACKAGE_PYTHON_CFFI
+	select BR2_PACKAGE_PYTHON_NUMPY
+	select BR2_PACKAGE_PULSEAUDIO
+	select BR2_PACKAGE_PULSEAUDIO_DAEMON
+	help
+	  A Pure-Python real-time audio I/O library for recording and playing
+	  audio on Linux (PulseAudio), macOS (CoreAudio), and Windows (WASAPI).
+	  
+	  https://github.com/bastibe/soundcard

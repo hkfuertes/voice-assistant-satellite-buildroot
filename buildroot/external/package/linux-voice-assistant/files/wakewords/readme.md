@@ -1,0 +1,3 @@
+microWakeWord not working at the moment, forcing openWakeWord: `/usr/lib/python3.13/site-packages/wakewords/`
+> Downloaded from: https://github.com/OHF-Voice/linux-voice-assistant/tree/main/wakewords/openWakeWord and renamed for easy use.
+> Still looking for a OWW stop model.

@@ -1,0 +1,45 @@
+name: Build Wyoming Satellite
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          chmod +x ./buildroot/dependencies.sh
+          sudo ./buildroot/dependencies.sh
+
+      - name: Clone Buildroot
+        run: |
+          git clone https://git.buildroot.net/buildroot sources
+          cd sources
+          git checkout 2025.08.x
+
+      - name: Set BR2_EXTERNAL
+        run: echo "BR2_EXTERNAL=${{ github.workspace }}/buildroot/external" >> $GITHUB_ENV
+
+      - name: Configure Buildroot
+        working-directory: sources
+        run: make wyoming_raspberrypi_3_zero2w_64_defconfig
+
+      - name: Build Buildroot
+        working-directory: sources
+        run: make -j$(nproc)
+
+      - name: Copy image artifact
+        run: |
+          cp sources/output/images/sdcard.img.xz wyoming-satellite-rpi0w2-rpi3.img.xz
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wyoming-satellite-rpi0w2-rpi3-image
+          path: wyoming-satellite-rpi0w2-rpi3.img.xz
+          retention-days: 30
