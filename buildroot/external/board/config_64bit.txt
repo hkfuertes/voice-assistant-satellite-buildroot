@@ -1,4 +1,3 @@
-# Raspberry Pi Zero 2W - 64-bit headless configuration
 # Kernel
 kernel=Image
 
@@ -7,9 +6,9 @@ disable_overscan=1
 
 [pi02]
 # Moderate overclock
-arm_freq=1300
-over_voltage=4
-core_freq=500
+# arm_freq=1300
+# over_voltage=4
+# core_freq=500
 
 [all]
 # GPU Memory - 16MB minimum for headless

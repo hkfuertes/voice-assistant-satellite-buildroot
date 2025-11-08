@@ -19,3 +19,4 @@ source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/wyoming-openwakeword/Config.i
 source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/wyoming-satellite/Config.in"
 source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/python-soundcard/Config.in"
 source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/python-pymicro-wakeword/Config.in"
+source "$BR2_EXTERNAL_CUSTOM_PACKAGES_PATH/package/python-sounddevice/Config.in"
