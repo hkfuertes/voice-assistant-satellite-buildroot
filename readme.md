@@ -125,3 +125,11 @@ The end goal (if dreaming is free) is to have `linux-voice-assistant` running wi
 - Test building this for the UZ801 dongle with an usb conference speaker/mic
 - Test pmOS on my Echo Dot
 - Test build for Echo Dot, following the same recipe used for UZ801, as the only current kernel I found was pmOS's
+
+---
+## Acknowledgments
+
+- **[linux-voice-assistant](https://github.com/OHF-Voice/linux-voice-assistant)** - Voice assistant satellite implementation by OHF-Voice
+- **[pymicro-wakeword](https://github.com/OHF-Voice/pymicro-wakeword)** - Efficient TensorFlow-based wake word detection
+- **[pyopen-wakeword](https://github.com/rhasspy/pyopen-wakeword)** - Alternative Python library for openWakeWord
+- **[Wyoming Protocol Suite](https://github.com/rhasspy/wyoming)** - Voice assistant communication protocol by rhasspy
