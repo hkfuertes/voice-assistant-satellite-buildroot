@@ -4,6 +4,7 @@
 #
 ################################################################################
 
+# Latest commit as of 2025-11-08
 LINUX_VOICE_ASSISTANT_VERSION = 2b04484f4c225773130cd137c49ea443e2c6e9c5
 LINUX_VOICE_ASSISTANT_SITE = $(call github,OHF-Voice,linux-voice-assistant,$(LINUX_VOICE_ASSISTANT_VERSION))
 LINUX_VOICE_ASSISTANT_LICENSE = Apache-2.0
@@ -23,13 +24,15 @@ LINUX_VOICE_ASSISTANT_DEPENDENCIES = python3 \
     tensorflow-lite
 
 # Install wakeword models
-define LINUX_VOICE_ASSISTANT_INSTALL_WAKEWORDS
+define LINUX_VOICE_ASSISTANT_INSTALL_WAKEWORDS_AND_SOUNDS
     mkdir -p $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords
+    mkdir -p $(TARGET_DIR)/usr/lib/python3.13/site-packages/sounds
     # cp -r $(@D)/wakewords/* $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords/
     cp -r $(LINUX_VOICE_ASSISTANT_PKGDIR)/files/wakewords/* $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords/
+    cp -r $(@D)/sounds/* $(TARGET_DIR)/usr/lib/python3.13/site-packages/sounds/
 endef
 
-LINUX_VOICE_ASSISTANT_POST_INSTALL_TARGET_HOOKS += LINUX_VOICE_ASSISTANT_INSTALL_WAKEWORDS
+LINUX_VOICE_ASSISTANT_POST_INSTALL_TARGET_HOOKS += LINUX_VOICE_ASSISTANT_INSTALL_WAKEWORDS_AND_SOUNDS
 
 
 define LINUX_VOICE_ASSISTANT_LINK_TFLITE
