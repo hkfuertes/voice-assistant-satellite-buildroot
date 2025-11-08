@@ -15,7 +15,7 @@ This project provides minimal Buildroot-based images for running voice assistant
 | Device | Solution | Comments |
 |--------|----------|----------|
 | pi02w/pi3 | **Wyoming** | With Wyoming OpenWakeWord and leds for 2mic Respeaker hat (WM8960). |
-| pi02w/pi3 | **Linux Voice Assistant** | `72c8f021c8152f427d4e622a920860bacf8c7fc3` (last commit con sounddevice instead of soundcard, no pulse needed)<br/>_Only openWakeWord at the moment._ |
+| pi02w/pi3 | **Linux Voice Assistant** | `72c8f021c8152f427d4e622a920860bacf8c7fc3` (last commit with `sounddevice` instead of `soundcard`, no pulse needed)<br/>_Only openWakeWord at the moment._ |
 | pi02w/pi3 (armv7) | - | - |
 | UZ801 Family | - | - |
 | Amazon Biscuit (armv7) | - | - |
