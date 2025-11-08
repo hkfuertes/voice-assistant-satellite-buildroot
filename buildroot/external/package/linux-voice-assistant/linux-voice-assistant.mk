@@ -41,4 +41,11 @@ endef
 
 LINUX_VOICE_ASSISTANT_POST_PATCH_HOOKS += LINUX_VOICE_ASSISTANT_LINK_TFLITE
 
+define PYTHON_LINUX_VOICE_ASSISTANT_INSTALL_INIT_SYSV
+    mkdir -p $(TARGET_DIR)/etc/init.d
+	$(INSTALL) -D -m 0755 $(PYTHON_LINUX_VOICE_ASSISTANT_PKGDIR)/files/S95linux-voice-assistant.sh \
+		$(TARGET_DIR)/etc/init.d/S95linux-voice-assistant
+endef
+
+
 $(eval $(python-package))

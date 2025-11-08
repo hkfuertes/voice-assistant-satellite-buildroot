@@ -1,4 +1,4 @@
-name: Build Satellite
+name: Build  LVA Satellite
 
 on:
   workflow_dispatch:
@@ -27,7 +27,7 @@ jobs:
 
       - name: Configure Buildroot
         working-directory: sources
-        run: make wyoming_raspberrypi_3_zero2w_64_defconfig
+        run: make lva_raspberrypi_3_zero2w_64_defconfig
 
       - name: Build Buildroot
         working-directory: sources
@@ -35,11 +35,11 @@ jobs:
 
       - name: Copy image artifact
         run: |
-          cp sources/output/images/sdcard.img.xz wyoming-satellite-rpi0w2-rpi3.img.xz
+          cp sources/output/images/sdcard.img.xz lva-satellite-rpi0w2-rpi3.img.xz
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wyoming-satellite-rpi0w2-rpi3-image
-          path: wyoming-satellite-rpi0w2-rpi3.img.xz
+          name: lva-satellite-rpi0w2-rpi3-image
+          path: lva-satellite-rpi0w2-rpi3.img.xz
           retention-days: 30
