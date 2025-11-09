@@ -5,7 +5,7 @@
 
 NAME="linux-voice-assistant"
 DAEMON="/usr/bin/python3"
-DAEMON_ARGS="-m linux_voice_assistant --name $(hostname)"
+DAEMON_ARGS="-m linux_voice_assistant --name $(hostname) --audio-output-device alsa/sysdefault"
 PIDFILE="/var/run/$NAME.pid"
 
 start() {

@@ -6,7 +6,7 @@
 
 # Latest commit with sounddeivce support: 72c8f021c8152f427d4e622a920860bacf8c7fc3 --> python-sounddevice
 # Latest commit as of 2025-11-08: 2b04484f4c225773130cd137c49ea443e2c6e9c5 --> python-soundcard
-LINUX_VOICE_ASSISTANT_VERSION = 72c8f021c8152f427d4e622a920860bacf8c7fc3
+LINUX_VOICE_ASSISTANT_VERSION = 2b04484f4c225773130cd137c49ea443e2c6e9c5
 LINUX_VOICE_ASSISTANT_SITE = $(call github,OHF-Voice,linux-voice-assistant,$(LINUX_VOICE_ASSISTANT_VERSION))
 LINUX_VOICE_ASSISTANT_LICENSE = Apache-2.0
 LINUX_VOICE_ASSISTANT_LICENSE_FILES = LICENSE
@@ -20,7 +20,7 @@ LINUX_VOICE_ASSISTANT_DEPENDENCIES = python3 \
     python-cryptography \
     python-protobuf \
     python-pymicro-features \
-    python-sounddevice \
+    python-soundcard \
     python-mpv \
     tensorflow-lite
 

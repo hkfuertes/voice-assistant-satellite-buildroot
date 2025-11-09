@@ -11,7 +11,7 @@ PYTHON_SOUNDCARD_SETUP_TYPE = setuptools
 PYTHON_SOUNDCARD_LICENSE = BSD-3-Clause
 PYTHON_SOUNDCARD_LICENSE_FILES = LICENSE
 
-PYTHON_SOUNDCARD_DEPENDENCIES = python-cffi python-numpy pulseaudio
+PYTHON_SOUNDCARD_DEPENDENCIES = python-cffi python-numpy-wheel pulseaudio
 
 define PYTHON_SOUNDCARD_INSTALL_INIT_SYSV
 	echo '#!/bin/sh' > $(TARGET_DIR)/etc/init.d/S01pulsegroup
