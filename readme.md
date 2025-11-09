@@ -50,7 +50,7 @@ This project provides minimal Buildroot-based images for running voice assistant
 
 ### Build
 
-```
+```shell
 cd buildroot
 docker compose build
 docker compose run --rm env
@@ -65,7 +65,7 @@ cp output/images/sdcard.img.xz /repo/
 ### Installation
 
 1. Extract and flash the image to your microSD card:
-   ```
+   ```shell
    xz -d sdcard.img.xz
    dd if=sdcard.img of=/dev/sdX bs=4M status=progress
    sync
@@ -85,7 +85,7 @@ Zeroconf is enabled by default, so once the device is connected to WiFi it shoul
 
 To connect to WiFi, create a `wpa_supplicant.conf` file in the `/boot` partition:
 
-```
+```conf
 country=ES
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
