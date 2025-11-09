@@ -15,7 +15,7 @@ LINUX_VOICE_ASSISTANT_DEPENDENCIES = python3 \
     portaudio \
     mpv \
     python-zeroconf \
-    python-numpy \
+    python-numpy-wheel \
     python-cffi \
     python-cryptography \
     python-protobuf \
