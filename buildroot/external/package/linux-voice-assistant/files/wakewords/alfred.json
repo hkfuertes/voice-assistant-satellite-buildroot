@@ -1,5 +1,0 @@
-{
-  "type": "openWakeWord",
-  "wake_word": "Alfred",
-  "model": "alfred.tflite"
-}

@@ -27,8 +27,7 @@ LINUX_VOICE_ASSISTANT_DEPENDENCIES = python3 \
 define LINUX_VOICE_ASSISTANT_INSTALL_WAKEWORDS_AND_SOUNDS
     mkdir -p $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords
     mkdir -p $(TARGET_DIR)/usr/lib/python3.13/site-packages/sounds
-    # cp -r $(@D)/wakewords/* $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords/
-    cp -r $(LINUX_VOICE_ASSISTANT_PKGDIR)/files/wakewords/* $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords/
+    cp -r $(@D)/wakewords/* $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords/
     cp -r $(@D)/sounds/* $(TARGET_DIR)/usr/lib/python3.13/site-packages/sounds/
 endef
 
