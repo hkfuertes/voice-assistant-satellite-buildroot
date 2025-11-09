@@ -12,7 +12,7 @@ WYOMING_OPENWAKEWORD_SETUP_TYPE = setuptools
 
 WYOMING_OPENWAKEWORD_DEPENDENCIES = \
     python3 \
-    python-numpy \
+    python-numpy-wheel \
     python-pyopenwakeword \
     python-wyoming # The pyproject expects 1.8.0 but tested working with 1.5.4
 

@@ -1,7 +1,7 @@
 config BR2_PACKAGE_PYTHON_PYOPENWAKEWORD
 	bool "python-pyopenwakeword"
 	depends on BR2_PACKAGE_PYTHON3
-	select BR2_PACKAGE_PYTHON_NUMPY
+	select BR2_PACKAGE_PYTHON_NUMPY_WHEEL
 	select BR2_PACKAGE_TENSORFLOW_LITE
 	help
 	  Alternative Python library for openWakeWord with pre-compiled TensorFlow Lite

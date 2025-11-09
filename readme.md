@@ -6,7 +6,6 @@ This project provides minimal Buildroot-based images for running voice assistant
 - Minimal footprint (~100MB images)
 - Zero-configuration with mDNS/Zeroconf
 - Support for WM8960 2mic Respeaker HAT
-- No PulseAudio dependency (ALSA-only)
 
 ---
 
@@ -15,11 +14,12 @@ This project provides minimal Buildroot-based images for running voice assistant
 | Device | Solution | Comments |
 |--------|----------|----------|
 | pi02w/pi3 | **Wyoming** | With Wyoming OpenWakeWord and leds for 2mic Respeaker hat (WM8960). |
-| pi02w/pi3 | **Linux Voice Assistant** | `72c8f021c8152f427d4e622a920860bacf8c7fc3` (last commit with `sounddevice` instead of `soundcard`, no pulse needed)<br/>_Only openWakeWord at the moment._ |
+| pi02w/pi3 | **Linux Voice Assistant** | <ul> <li>`72c8f021c8152f427d4e622a920860bacf8c7fc3`: Last commit with `sounddevice` (no pulse needed)</li> <li>`2b04484f4c225773130cd137c49ea443e2c6e9c5`: Latest commit (2025-11-09) using `soundcard`</li></ul>|
 | pi02w/pi3 (armv7) | - | - |
 | UZ801 Family | - | - |
 | Amazon Biscuit (armv7) | - | - |
 
+> See mk/config [package](buildroot/external/package/linux-voice-assistant/) folder to change PRs accordingly
 ---
 
 ### Prerequisites
@@ -116,13 +116,13 @@ The device will auto-discover via Zeroconf. Alternatively, manually add:
 
 ---
 
-### TODO
+### ROADMAP
 
 The end goal (if dreaming is free) is to have `linux-voice-assistant` running with `microwakeword` on the Amazon Echo Dot 2nd (`amazon-biscuit`) with this buildroot as rootfs and pmOS kernel.
 
-- Make `microWakeWord` work on current pi arm64 image
+- ~~Make `microWakeWord` work on current pi arm64 image~~
 - Make armv7 image for current pi
-- Test building this for the UZ801 dongle with an usb conference speaker/mic
+- Test building this for the UZ801 dongle (uses pmOS kernel and its aarch64 capable) with an usb conference speaker/mic
 - Test pmOS on my Echo Dot
 - Test build for Echo Dot, following the same recipe used for UZ801, as the only current kernel I found was pmOS's
 
