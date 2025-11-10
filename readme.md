@@ -106,15 +106,6 @@ The device will auto-discover via Zeroconf. Alternatively, manually add:
 
 ---
 
-### Known Limitations
-
-- microWakeWord not yet working on ARM64 (TODO)
-- Amazon Biscuit support experimental
-- OpenWakeWord only (no Porcupine/Precise support yet)
-- No audio feedback during network issues
-
----
-
 ### ROADMAP
 
 The end goal (if dreaming is free) is to have `linux-voice-assistant` running with `microwakeword` on the Amazon Echo Dot 2nd (`amazon-biscuit`) with this buildroot as rootfs and pmOS kernel.
