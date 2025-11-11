@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PYTHON_AIOESPHOMEAPI_VERSION = 37.2.1
+PYTHON_AIOESPHOMEAPI_VERSION = 42.7.0
 PYTHON_AIOESPHOMEAPI_SITE = $(call github,esphome,aioesphomeapi,v$(PYTHON_AIOESPHOMEAPI_VERSION))
 PYTHON_AIOESPHOMEAPI_LICENSE = MIT
 PYTHON_AIOESPHOMEAPI_LICENSE_FILES = LICENSE

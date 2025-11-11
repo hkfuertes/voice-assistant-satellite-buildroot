@@ -5,8 +5,8 @@
 ################################################################################
 
 # Latest commit with sounddeivce support: 72c8f021c8152f427d4e622a920860bacf8c7fc3 --> python-sounddevice
-# Latest commit as of 2025-11-08: 2b04484f4c225773130cd137c49ea443e2c6e9c5 --> python-soundcard
-LINUX_VOICE_ASSISTANT_VERSION = 2b04484f4c225773130cd137c49ea443e2c6e9c5
+# Latest commit as of 2025-11-11: fd4c1d972bc87e6d7a0dddc5aa52465243d63265 --> python-soundcard
+LINUX_VOICE_ASSISTANT_VERSION = fd4c1d972bc87e6d7a0dddc5aa52465243d63265
 LINUX_VOICE_ASSISTANT_SITE = $(call github,OHF-Voice,linux-voice-assistant,$(LINUX_VOICE_ASSISTANT_VERSION))
 LINUX_VOICE_ASSISTANT_LICENSE = Apache-2.0
 LINUX_VOICE_ASSISTANT_LICENSE_FILES = LICENSE

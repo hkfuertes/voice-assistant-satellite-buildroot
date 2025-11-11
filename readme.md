@@ -14,7 +14,7 @@ This project provides minimal Buildroot-based images for running voice assistant
 | Device | Solution | Comments |
 |--------|----------|----------|
 | pi02w/pi3 | **Wyoming** | With Wyoming OpenWakeWord and leds for 2mic Respeaker hat (WM8960). |
-| pi02w/pi3 | **Linux Voice Assistant** | <ul> <li>`72c8f021c8152f427d4e622a920860bacf8c7fc3`: Last commit with `sounddevice` (no pulse needed)</li> <li>`2b04484f4c225773130cd137c49ea443e2c6e9c5`: Latest commit (2025-11-09) using `soundcard`</li></ul>|
+| pi02w/pi3 | **Linux Voice Assistant** | <ul> <li>`72c8f021c8152f427d4e622a920860bacf8c7fc3`: Last commit with `sounddevice` (no pulse needed)</li> <li>`fd4c1d972bc87e6d7a0dddc5aa52465243d63265`: Latest commit (2025-11-09) using `soundcard`</li></ul>|
 
 > See mk/config [package](buildroot/external/package/linux-voice-assistant/) folder to change PRs accordingly
 ---
