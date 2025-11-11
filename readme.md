@@ -15,9 +15,6 @@ This project provides minimal Buildroot-based images for running voice assistant
 |--------|----------|----------|
 | pi02w/pi3 | **Wyoming** | With Wyoming OpenWakeWord and leds for 2mic Respeaker hat (WM8960). |
 | pi02w/pi3 | **Linux Voice Assistant** | <ul> <li>`72c8f021c8152f427d4e622a920860bacf8c7fc3`: Last commit with `sounddevice` (no pulse needed)</li> <li>`2b04484f4c225773130cd137c49ea443e2c6e9c5`: Latest commit (2025-11-09) using `soundcard`</li></ul>|
-| pi02w/pi3 (armv7) | - | - |
-| UZ801 Family | - | - |
-| Amazon Biscuit (armv7) | - | - |
 
 > See mk/config [package](buildroot/external/package/linux-voice-assistant/) folder to change PRs accordingly
 ---
@@ -37,15 +34,6 @@ This project provides minimal Buildroot-based images for running voice assistant
 - Respeaker 2-Mic Pi HAT (WM8960) recommended
 - Power supply: 5V/2.5A minimum
 - MicroSD card: 4GB minimum, Class 10 recommended
-
-#### UZ801 USB Dongle
-- USB conference speaker/mic
-- Status: **Planned**
-
-#### Amazon Echo Dot 2nd Gen (Biscuit)
-- UART serial adapter for debugging
-- Status: **Experimental** - kernel support via postmarketOS
-
 ---
 
 ### Build
@@ -59,22 +47,6 @@ make lva_raspberrypi_3_zero2w_64_defconfig
 make
 cp output/images/sdcard.img.xz /repo/
 ```
-
----
-
-### Installation
-
-1. Extract and flash the image to your microSD card:
-   ```shell
-   xz -d sdcard.img.xz
-   dd if=sdcard.img of=/dev/sdX bs=4M status=progress
-   sync
-   ```
-
-2. Mount the boot partition and configure WiFi (see Configuration section)
-
-3. Insert the card into your device and power on
-
 ---
 
 ### Configuration
@@ -106,7 +78,7 @@ The device will auto-discover via Zeroconf. Alternatively, manually add:
 
 ---
 
-### ROADMAP
+### ROADMAP _(... or distant future ...)_
 
 The end goal (if dreaming is free) is to have `linux-voice-assistant` running with `microwakeword` on the Amazon Echo Dot 2nd (`amazon-biscuit`) with this buildroot as rootfs and pmOS kernel.
 
@@ -115,6 +87,8 @@ The end goal (if dreaming is free) is to have `linux-voice-assistant` running wi
 - Test building this for the UZ801 dongle (uses pmOS kernel and its aarch64 capable) with an usb conference speaker/mic
 - Test pmOS on my Echo Dot
 - Test build for Echo Dot, following the same recipe used for UZ801, as the only current kernel I found was pmOS's
+- ...
+- _... and when I inevitably fail... replace the TensorFlow Lite version compiled by Buildroot with some precompiled binary..._
 
 ---
 ## Acknowledgments
