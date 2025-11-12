@@ -4,12 +4,21 @@
 #
 ################################################################################
 
-PYTHON_AIOESPHOMEAPI_VERSION = 37.2.1
+PYTHON_AIOESPHOMEAPI_VERSION = 42.7.0
 PYTHON_AIOESPHOMEAPI_SITE = $(call github,esphome,aioesphomeapi,v$(PYTHON_AIOESPHOMEAPI_VERSION))
 PYTHON_AIOESPHOMEAPI_LICENSE = MIT
 PYTHON_AIOESPHOMEAPI_LICENSE_FILES = LICENSE
 PYTHON_AIOESPHOMEAPI_SETUP_TYPE = setuptools
-PYTHON_AIOESPHOMEAPI_DEPENDENCIES = python3 python-protobuf python-zeroconf python-cryptography python-aiohappyeyeballs python-async-interrupt python-chacha20poly1305-reuseable python-noiseprotocol host-protobuf
+PYTHON_AIOESPHOMEAPI_DEPENDENCIES = python3 \
+	python-protobuf \
+	python-zeroconf \
+	python-cryptography \
+	python-aiohappyeyeballs \
+	python-async-interrupt \
+	python-chacha20poly1305-reuseable \
+	python-noiseprotocol \
+	host-protobuf \
+	python-tzlocal
 
 # Regenerate protobuf files with correct version
 define PYTHON_AIOESPHOMEAPI_REGENERATE_PROTOBUF
