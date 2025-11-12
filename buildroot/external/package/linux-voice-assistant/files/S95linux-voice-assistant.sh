@@ -5,8 +5,17 @@
 
 NAME="linux-voice-assistant"
 DAEMON="/usr/bin/python3"
-DAEMON_ARGS="-m linux_voice_assistant --name $(hostname) --audio-output-device alsa/sysdefault"
 PIDFILE="/var/run/$NAME.pid"
+
+# Build name with hostname and MAC suffix (if wlan0 exists)
+if [ -e /sys/class/net/wlan0/address ]; then
+    WIFI_SUFFIX=$(cat /sys/class/net/wlan0/address | cut -d':' -f4-6 | tr ':' '-')
+    SATELLITE_NAME="$(hostname)-$WIFI_SUFFIX"
+else
+    SATELLITE_NAME="$(hostname)"
+fi
+
+DAEMON_ARGS="-m linux_voice_assistant --name $SATELLITE_NAME --audio-output-device alsa/sysdefault"
 
 start() {
     echo -n "Starting $NAME: "
