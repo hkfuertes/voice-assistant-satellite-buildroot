@@ -10,8 +10,8 @@ TRIGGERHAPPY_CONFIG_SITE_METHOD = local
 
 define TRIGGERHAPPY_CONFIG_INSTALL_TARGET_CMDS
 	# Install triggerhappy configuration
-	$(INSTALL) -D -m 0644 $(@D)/emeet.conf \
-		$(TARGET_DIR)/etc/triggerhappy/triggers.d/emeet.conf
+	$(INSTALL) -D -m 0644 $(@D)/media.conf \
+		$(TARGET_DIR)/etc/triggerhappy/triggers.d/media.conf
 	
 	# Install init script
 	$(INSTALL) -D -m 0755 $(@D)/S02triggerhappy.init \
