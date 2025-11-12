@@ -1,9 +1,14 @@
 config BR2_PACKAGE_PYTHON_NUMPY_WHEEL
     bool "python-numpy-wheel"
     depends on BR2_PACKAGE_PYTHON3
-    depends on BR2_aarch64 || BR2_arm
+    depends on BR2_aarch64 || BR2_arm || BR2_x86_64
     help
-      NumPy wheel precompiled with SIMD optimizations for ARM targets.
+      NumPy wheel precompiled with optimizations for multiple architectures.
+      
+      Supports:
+      - aarch64: ARM 64-bit with SIMD optimizations
+      - armv7l: ARM 32-bit
+      - x86_64: AMD64/Intel 64-bit
 
-comment "python-numpy-wheel needs aarch64 or arm"
-    depends on !BR2_aarch64 && !BR2_arm
+comment "python-numpy-wheel needs aarch64, arm or x86_64"
+    depends on !BR2_aarch64 && !BR2_arm && !BR2_x86_64
