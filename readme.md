@@ -77,19 +77,20 @@ The device will auto-discover via Zeroconf. Alternatively, manually add:
 3. Enter device IP: `192.168.x.x:6053`
 
 ---
+### TODO:
+- Proxmox Amd64 LxC Container
+- Wrapper python script to adapt 2mic led example
+- Switch to precompiled library for TensorFlow
 
 ### ROADMAP _(... or distant future ...)_
 
 The end goal (if dreaming is free) is to have `linux-voice-assistant` running with `microwakeword` on the Amazon Echo Dot 2nd (`amazon-biscuit`) with this buildroot as rootfs and pmOS kernel.
 
 - ~~Make `microWakeWord` work on current pi arm64 image~~
-- Proxmox AMD64 LxC container...
 - Make armv7 image for current pi
 - Test building this for the UZ801 dongle (uses pmOS kernel and its aarch64 capable) with an usb conference speaker/mic
 - Test pmOS on my Echo Dot
 - Test build for Echo Dot, following the same recipe used for UZ801, as the only current kernel I found was pmOS's
-- ...
-- _... and when I inevitably fail... replace the TensorFlow Lite version compiled by Buildroot with some precompiled binary..._
 
 ---
 ## Acknowledgments
