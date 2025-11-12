@@ -27,7 +27,7 @@ jobs:
 
       - name: Configure Buildroot
         working-directory: sources
-        run: make wyoming_raspberrypi_3_zero2w_64_defconfig
+        run: make wyoming_wm8960hat_pi_3_02w_defconfig
 
       - name: Build Buildroot
         working-directory: sources

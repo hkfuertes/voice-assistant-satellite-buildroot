@@ -1,0 +1,8 @@
+config BR2_PACKAGE_TRIGGERHAPPY_CONFIG
+	bool "triggerhappy-config"
+	select BR2_PACKAGE_TRIGGERHAPPY
+	help
+	  Configuration files for triggerhappy daemon to handle
+	  eMeet M1A speakerphone buttons.
+	  
+	  Maps volume buttons to ALSA volume controls.

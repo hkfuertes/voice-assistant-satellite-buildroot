@@ -43,7 +43,7 @@ cd buildroot
 docker compose build
 docker compose run --rm env
 # You will now be inside a bash with the environment setup
-make lva_raspberrypi_3_zero2w_64_defconfig
+make lva_wm8960hat_pi_3_02w_defconfig
 make
 cp output/images/sdcard.img.xz /repo/
 ```
