@@ -33,13 +33,11 @@ jobs:
         working-directory: sources
         run: make -j$(nproc)
 
-      - name: Copy image artifact
-        run: |
-          cp sources/output/images/sdcard.img.xz lva-satellite-lxc-proxmox.img.xz
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: lva-satellite-lxc-proxmox-image
-          path: lva-satellite-lxc-proxmox.img.xz
+          path: |
+            output/images/voice-assistant_rootfs_amd64.tar.xz
+            output/images/Dockerfile
           retention-days: 30
