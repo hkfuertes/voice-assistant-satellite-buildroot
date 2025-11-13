@@ -18,7 +18,7 @@ define TRIGGERHAPPY_CONFIG_INSTALL_TARGET_CMDS
 		$(TARGET_DIR)/etc/init.d/S02triggerhappy
 
 	# Install volume control script
-    $(INSTALL) -D -m 0755 $(@D)/usr/bin/volume_control.sh \
+    $(INSTALL) -D -m 0755 $(@D)/volume_control.sh \
         $(TARGET_DIR)/usr/bin/volume_control
 endef
 

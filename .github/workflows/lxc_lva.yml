@@ -1,4 +1,4 @@
-name: Build  LVA Satellite
+name: Build LVA Proxmox Satellite
 
 on:
   workflow_dispatch:
@@ -27,7 +27,7 @@ jobs:
 
       - name: Configure Buildroot
         working-directory: sources
-        run: make lva_wm8960hat_pi_3_02w_defconfig
+        run: make lva_usb_amd64_lxc_defconfig
 
       - name: Build Buildroot
         working-directory: sources
@@ -35,11 +35,11 @@ jobs:
 
       - name: Copy image artifact
         run: |
-          cp sources/output/images/sdcard.img.xz lva-satellite-rpi0w2-rpi3.img.xz
+          cp sources/output/images/sdcard.img.xz lva-satellite-lxc-proxmox.img.xz
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lva-satellite-rpi0w2-rpi3-image
-          path: lva-satellite-rpi0w2-rpi3.img.xz
+          name: lva-satellite-lxc-proxmox-image
+          path: lva-satellite-lxc-proxmox.img.xz
           retention-days: 30

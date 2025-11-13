@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 MAX_VOLUME=100
 
 # Get current volume in %
-current_vol=$(pactl get-sink-volume @DEFAULT_SINK@ | grep -oP '\d+%' | head -1 | tr -d '%')
+current_vol=$(pactl get-sink-volume @DEFAULT_SINK@ | grep -o '[0-9]*%' | head -1 | tr -d '%')
 
 if [ "$1" == "up" ]; then
     if [ "$current_vol" -lt "$MAX_VOLUME" ]; then

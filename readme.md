@@ -15,8 +15,11 @@ This project provides minimal Buildroot-based images for running voice assistant
 |--------|----------|----------|
 | pi02w/pi3 | **Wyoming** | With Wyoming OpenWakeWord and leds for 2mic Respeaker hat (WM8960). |
 | pi02w/pi3 | **Linux Voice Assistant** | <ul> <li>`72c8f021c8152f427d4e622a920860bacf8c7fc3`: Last commit with `sounddevice` (no pulse needed)</li> <li>`fd4c1d972bc87e6d7a0dddc5aa52465243d63265`: Latest commit (2025-11-11) using `soundcard`</li></ul>|
+| proxmox/lxc | **Linux Voice Assistant** | `fd4c1d972bc87e6d7a0dddc5aa52465243d63265`: Latest commit (2025-11-11) using `soundcard`|
 
-> See mk/config [package](buildroot/external/package/linux-voice-assistant/) folder to change PRs accordingly
+> Notes:
+> - See mk/config [package](buildroot/external/package/linux-voice-assistant/) folder to change PRs accordingly
+> - See [proxmox/post-build](buildroot/external/board/proxmox/post-build.sh) to see an example of `lxc.conf` mounts.
 ---
 
 ### Prerequisites
@@ -78,9 +81,11 @@ The device will auto-discover via Zeroconf. Alternatively, manually add:
 
 ---
 ### TODO:
-- Proxmox Amd64 LxC Container
-- Wrapper python script to adapt 2mic led example
+- ~~Proxmox Amd64 LxC Container~~
 - Switch to precompiled library for TensorFlow
+- Housekeeping, see `triggerhappy-config` package for `source=` example
+- Config guides insde `guides` folder.
+- `wyoming-microwakeword`
 
 ### ROADMAP _(... or distant future ...)_
 
