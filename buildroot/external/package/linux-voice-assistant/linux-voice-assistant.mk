@@ -22,7 +22,7 @@ LINUX_VOICE_ASSISTANT_DEPENDENCIES = python3 \
     python-pymicro-features \
     python-soundcard \
     python-mpv \
-    tensorflow-lite
+    tensorflow-lite-c-prebuilt
 
 define LINUX_VOICE_ASSISTANT_INSTALL_WAKEWORDS_AND_SOUNDS
     mkdir -p $(TARGET_DIR)/usr/lib/python3.13/site-packages/wakewords
