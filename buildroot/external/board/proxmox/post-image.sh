@@ -66,7 +66,7 @@ cat > "${DOCKERFILE}" <<EOF
 FROM scratch
 
 # Metadata
-LABEL maintainer="buildroot@localhost"
+LABEL maintainer="hkfuertes@gmail.com"
 LABEL description="Voice Assistant - Buildroot ${ARCH}"
 LABEL version="1.0.0"
 LABEL architecture="${ARCH}"
