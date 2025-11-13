@@ -82,7 +82,7 @@ The device will auto-discover via Zeroconf. Alternatively, manually add:
 ---
 ### TODO:
 - ~~Proxmox Amd64 LxC Container~~
-- Switch to precompiled library for TensorFlow
+- ~~Switch to precompiled library for TensorFlow~~
 - Housekeeping, see `triggerhappy-config` package for `source=` example
 - Config guides insde `guides` folder.
 - `wyoming-microwakeword`
