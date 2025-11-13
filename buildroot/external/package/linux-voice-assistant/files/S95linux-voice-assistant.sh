@@ -15,7 +15,20 @@ else
     SATELLITE_NAME="$(hostname)"
 fi
 
-DAEMON_ARGS="-m linux_voice_assistant --name $SATELLITE_NAME --audio-output-device alsa/sysdefault"
+# Detect if running in LXC container
+if grep -q container=lxc /proc/1/environ 2>/dev/null; then
+    IN_LXC=1
+else
+    IN_LXC=0
+fi
+
+# Base arguments
+DAEMON_ARGS="-m linux_voice_assistant --name $SATELLITE_NAME"
+
+# Add audio-output-device only if not in LXC (assuming Pi needs it)
+if [ "$IN_LXC" -eq 0 ]; then
+    DAEMON_ARGS="$DAEMON_ARGS --audio-output-device alsa/sysdefault"
+fi
 
 start() {
     echo -n "Starting $NAME: "
