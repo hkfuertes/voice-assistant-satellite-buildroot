@@ -1,6 +1,8 @@
 ## Simple Buildroot image for Voice Assistant Satellite for HomeAssistant
 
-This project provides minimal Buildroot-based images for running voice assistant satellites on embedded devices. It supports both Wyoming and Linux Voice Assistant protocols, optimized for low-resource ARM devices without requiring PulseAudio.
+This project provides minimal Buildroot-based images for running voice assistant satellites on embedded devices. It supports both Wyoming and Linux Voice Assistant protocols, optimized for low-resource ARM devices.
+
+Also, as the work was already done... an _(amd64)_ `rootfs.tar` is also created to import to proxmox and use with a usb microphone/speaker.
 
 ### Supported Devices
 
@@ -25,7 +27,7 @@ make lva_wm8960hat_pi_3_02w_defconfig
 make
 cp output/images/sdcard.img.xz /repo/
 ```
----
+
 ## Acknowledgments
 
 - **[linux-voice-assistant](https://github.com/OHF-Voice/linux-voice-assistant)** - Voice assistant satellite implementation by OHF-Voice
