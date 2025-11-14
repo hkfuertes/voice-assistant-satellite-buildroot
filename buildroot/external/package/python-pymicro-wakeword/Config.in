@@ -3,7 +3,7 @@ config BR2_PACKAGE_PYTHON_PYMICRO_WAKEWORD
 	depends on BR2_PACKAGE_PYTHON3
 	select BR2_PACKAGE_PYTHON_NUMPY_WHEEL
 	select BR2_PACKAGE_PYTHON_PYMICRO_FEATURES
-	select BR2_PACKAGE_TENSORFLOW_LITE
+	select BR2_PACKAGE_TENSORFLOW_LITE_C_PREBUILT
 	help
 	  A TensorFlow based wake word detection library using pre-compiled
 	  TensorFlow Lite models suitable for microcontrollers.

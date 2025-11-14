@@ -1,0 +1,11 @@
+config BR2_PACKAGE_TENSORFLOW_LITE_C_PREBUILT
+	bool "tensorflow-lite-c-prebuilt"
+	help
+	  TensorFlow Lite C library (prebuilt binaries)
+	  
+	  This package provides precompiled TensorFlow Lite C shared
+	  libraries for amd64 and arm64 architectures.
+	  
+	  Version: 2.17.1
+	  
+	  https://www.tensorflow.org/lite

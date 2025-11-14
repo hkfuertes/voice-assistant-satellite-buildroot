@@ -10,7 +10,7 @@ PYTHON_PYOPENWAKEWORD_SITE_METHOD = git
 PYTHON_PYOPENWAKEWORD_LICENSE = Apache-2.0
 PYTHON_PYOPENWAKEWORD_SETUP_TYPE = setuptools
 
-PYTHON_PYOPENWAKEWORD_DEPENDENCIES = python-numpy-wheel tensorflow-lite
+PYTHON_PYOPENWAKEWORD_DEPENDENCIES = python-numpy-wheel tensorflow-lite-c-prebuilt
 
 define PYTHON_PYOPENWAKEWORD_POST_INSTALL_MAKE_LNS
 	mkdir -p $(TARGET_DIR)/usr/lib/python3.13/site-packages/pyopen_wakeword/lib
