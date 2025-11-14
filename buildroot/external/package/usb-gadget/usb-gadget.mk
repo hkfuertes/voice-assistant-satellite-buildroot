@@ -6,11 +6,11 @@
 
 USB_GADGET_VERSION = 1.0
 USB_GADGET_LICENSE = MIT
-USB_GADGET_SOURCE =
+USB_GADGET_SITE = $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/package/usb-gadget
+USB_GADGET_SITE_METHOD = local
 
 define USB_GADGET_INSTALL_INIT_SYSV
-	$(INSTALL) -D -m 0755  $(BR2_EXTERNAL_CUSTOM_PACKAGES_PATH)/package/usb-gadget/S35usb-gadget \
-		$(TARGET_DIR)/etc/init.d/S35usb-gadget
+	$(INSTALL) -D -m 0755  $(@D)/S35usb-gadget $(TARGET_DIR)/etc/init.d/S35usb-gadget
 endef
 
 define USB_GADGET_RPI_FIRMWARE_FIXUP
