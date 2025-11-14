@@ -2,13 +2,6 @@
 
 This project provides minimal Buildroot-based images for running voice assistant satellites on embedded devices. It supports both Wyoming and Linux Voice Assistant protocols, optimized for low-resource ARM devices without requiring PulseAudio.
 
-**Key features:**
-- Minimal footprint (~100MB images)
-- Zero-configuration with mDNS/Zeroconf
-- Support for WM8960 2mic Respeaker HAT
-
----
-
 ### Supported Devices
 
 | Device | Solution | Comments |
@@ -20,24 +13,6 @@ This project provides minimal Buildroot-based images for running voice assistant
 > Notes:
 > - See mk/config [package](buildroot/external/package/linux-voice-assistant/) folder to change PRs accordingly: Commented is the last commit with `sounddevice` that does not require `pulse`.
 > - See [proxmox/post-build](buildroot/external/board/proxmox/post-build.sh) to see an example of `lxc.conf` mounts.
----
-
-### Prerequisites
-
-- Docker and Docker Compose
-- 4GB+ microSD card
-- Supported hardware (see Devices table)
-- Home Assistant instance with ESPHome integration
-
----
-
-### Hardware Setup
-
-#### Raspberry Pi Zero 2W / Pi 3
-- Respeaker 2-Mic Pi HAT (WM8960) recommended
-- Power supply: 5V/2.5A minimum
-- MicroSD card: 4GB minimum, Class 10 recommended
----
 
 ### Build
 
@@ -52,34 +27,6 @@ cp output/images/sdcard.img.xz /repo/
 ```
 ---
 
-### Configuration
-
-#### WiFi Setup
-
-Zeroconf is enabled by default, so once the device is connected to WiFi it should be autodiscovered by Home Assistant.
-
-To connect to WiFi, create a `wpa_supplicant.conf` file in the `/boot` partition:
-
-```conf
-country=ES
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-update_config=1
-
-network={
-    ssid="YourSSID"
-    psk="YourPassword"
-}
-```
-
-#### Home Assistant Integration
-
-The device will auto-discover via Zeroconf. Alternatively, manually add:
-
-1. Go to Settings → Devices & Services
-2. Add Integration → ESPHome
-3. Enter device IP: `192.168.x.x:6053`
-
----
 ### TODO:
 - ~~Proxmox Amd64 LxC Container~~
 - ~~Switch to precompiled library for TensorFlow~~
