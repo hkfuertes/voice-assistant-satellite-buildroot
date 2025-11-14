@@ -26,14 +26,6 @@ make
 cp output/images/sdcard.img.xz /repo/
 ```
 ---
-
-### TODO:
-- ~~Proxmox Amd64 LxC Container~~
-- ~~Switch to precompiled library for TensorFlow~~
-- ~~Housekeeping, see `triggerhappy-config` package for `source=` example~~
-- Config guides insde `guides` folder.
-
----
 ## Acknowledgments
 
 - **[linux-voice-assistant](https://github.com/OHF-Voice/linux-voice-assistant)** - Voice assistant satellite implementation by OHF-Voice
