@@ -1,16 +1,86 @@
-### Future of this project
-Recently I discovered that the Amazon Echo Dot 2 (`amazon-biscuit`) is hackable with a working Alpine version but only on 32bits, and Alpine wich is `musl`.
+# Future Roadmap
 
-I attempted to build the same buildroot for arm32 bit and although it might be possible I was not able to. Let me explain directly inline with my original plan.
+This document outlines the exploration paths and technical challenges encountered while expanding platform support for this voice assistant satellite project.
 
-THE plan:
-- **Make armv7 image for current Pi**: Raspberry Pi (3 and 02W) are able to operate in 64 and 32bit modes. In essence, generating a 32bit arm image with buildroot should be really really simple, but in reallity there are several complications:
-  - Python Numpy, has to be installed via Wheel, as the `python-numpy` package provided with buildroot is very old and does not work. The thing is that the wheel for `armv7`, comes from **piwheel** that does not integrate all the dependant libraries, namely `openblas`. Its not trivial to build openblas with buildroot (at least for me) and using a prebuilt (via alpine apk or debian deb) was not working for me.
-  - TensorFlowLite is already provided by buildroot on a somewhat recent version (2.11 vs 2.17) and can be compiled for armv7, but still need to figure out if the cpu optimization apply here (`NEON`).
-    - If in the future I want to go back and try, I replaced the build version (2.11) with a prebuilt version (2.17). <br/>Here is the pull request to undo: https://github.com/hkfuertes/voice-assistant-satellite-buildroot/pull/9
-- **Test building this for the UZ801 dongle** (uses pmOS kernel and its aarch64 capable) _with an usb conference speaker/mic_: I recently also discovered this really cheap dongles in aliexpress that can run full blown Alpine.
-  - Running Alpine and follow any tutorial on the oficial repo is not an option, as all the prebuilt libraries for tensorflow are built with `glibc` not `musl` and therefore are incompatible.
-  - I was able to build the rootfs but the dongle rebooted continously to fastboot.
-- _... I lost passion/interest in this project, and decided that the knowledge with the rootfs creation was better used in my setup with a proxmox lxc container..._
-  - **Test pmOS on my Echo Dot**: _Yet to be tested._
-  - _Test build for Echo Dot, following the same recipe used for UZ801, as the only current kernel I found was pmOS's_
+## Primary Goal
+
+**Target:** Run this Buildroot-based system on Amazon Echo Dot 2 (`amazon-biscuit`)
+
+- Currently `armv7` (32-bit) is the only supported architecture with available Alpine kernel
+- If `aarch64` kernel becomes available, migrate to 64-bit build
+- Main advantage: Extremely cheap, hackable hardware with working Linux support
+
+## Technical Challenges
+
+### Kernel Integration
+
+- Need to integrate prebuilt kernel (currently only Alpine/postmarketOS kernels available)
+- Possible solution: Configure Buildroot to use external kernel build
+- Status: Not yet implemented
+
+### Python NumPy and OpenBLAS _(32bit)_
+
+- **NumPy Issue:** Buildroot's `python-numpy` package is outdated and non-functional
+- **Wheel Installation Problem:** ARM wheels from `piwheel` don't include `openblas` dependencies
+- **OpenBLAS Compilation:** Not straightforward in Buildroot environment
+- **Pre-built Binaries:** Alpine APK and Debian DEB packages failed to integrate properly
+- Status: Blocking ARM32 builds
+
+### TensorFlow Lite Optimization
+
+- Need to validate CPU optimizations (NEON instructions) work correctly on ARM32
+- Buildroot compiles TensorFlow v2.11 natively (no glibc/musl issues)
+- Switched to prebuilt v2.17 in [PR #9](https://github.com/hkfuertes/voice-assistant-satellite-buildroot/pull/9)
+- Status: Requires testing
+
+## Why Buildroot Over Alpine/postmarketOS
+
+**Decision:** Use Buildroot as base system instead of Alpine/postmarketOS
+
+**Reasoning:**
+- Alpine and postmarketOS use `musl` libc
+- Pre-compiled TensorFlow libraries are built against `glibc`, causing binary incompatibility
+- Compiling TensorFlow from source for `musl` is complex and time-consuming
+- **Buildroot advantage:** Compiles entire system (including TensorFlow) from source, avoiding library compatibility issues
+
+**Trade-off:** More complex initial setup, but full control over compilation and dependencies
+
+## Attempted Platforms
+
+### Raspberry Pi (ARM32)
+
+**Goal:** Validate `armv7` Buildroot image on known-good hardware (Pi 3, Zero 2W)
+
+**Status:** Blocked by NumPy/OpenBLAS issues
+
+**Purpose:** Test platform before attempting Echo Dot port
+
+### UZ801 Dongle
+
+**Goal:** Alternative cheap hardware platform (postmarketOS kernel, `aarch64` capable)
+
+**Status:** Failed - continuous fastboot reboot loop after successful rootfs build
+
+**Notes:** Used Buildroot approach, but kernel integration issues prevented boot
+
+### Amazon Echo Dot 2
+
+**Goal:** Final target platform
+
+**Status:** Not tested - waiting for ARM32 build resolution or `aarch64` kernel availability
+
+## Project Status
+
+**Currently on hold** - Technical blockers in ARM32 toolchain prevented progress. Knowledge gained was redirected to Proxmox LXC container deployment.
+
+## Next Steps (If Resuming)
+
+1. **Solve OpenBLAS integration** - Critical blocker for NumPy on ARM32
+2. **Test external kernel integration** with Buildroot
+3. **Validate NEON optimizations** for TensorFlow Lite on ARM32
+4. **Attempt Echo Dot port** once ARM32 build is stable
+5. **Monitor for `aarch64` kernel** availability for Echo Dot
+
+---
+
+**Last Updated:** November 2025

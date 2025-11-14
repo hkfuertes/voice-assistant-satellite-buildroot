@@ -29,6 +29,9 @@ make
 cp output/images/sdcard.img.xz /repo/
 ```
 
+### TODO:
+- **Wrapper python script for Linux Voice Assistant:** Read `--debug` info to react to states. _(This is a temporary solution to "port" the 2mic led example to lva)_
+
 ## Acknowledgments
 
 - **[linux-voice-assistant](https://github.com/OHF-Voice/linux-voice-assistant)** - Voice assistant satellite implementation by OHF-Voice
