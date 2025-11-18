@@ -1,0 +1,91 @@
+# /usr/bin/python3 -m linux_voice_assistant --name VoiceAssistant-3b-25-d7 --audio-output-device alsa/sysdefault --debug | tee logs
+DEBUG:__main__:Namespace(name='VoiceAssistant-3b-25-d7', audio_input_device=None, list_input_devices=False, audio_input_block_size=1024, audio_output_device='alsa/sysdefault', list_output_devices=False, wake_word_dir=[PosixPath('/usr/lib/python3.13/site-packages/wakewords')], wake_model='okay_nabu', stop_model='stop', download_dir=PosixPath('/usr/lib/python3.13/site-packages/local'), refractory_seconds=2.0, wakeup_sound='/usr/lib/python3.13/site-packages/sounds/wake_word_triggered.flac', timer_finished_sound='/usr/lib/python3.13/site-packages/sounds/timer_finished.flac', preferences_file=PosixPath('/usr/lib/python3.13/site-packages/preferences.json'), host='0.0.0.0', port=6053, debug=True)
+DEBUG:__main__:Available wake words: ['alexa', 'choo_choo_homie', 'hey_home_assistant', 'hey_jarvis', 'hey_luna', 'hey_mycroft', 'okay_computer', 'okay_nabu']
+DEBUG:__main__:Loading preferences: /usr/lib/python3.13/site-packages/preferences.json
+DEBUG:__main__:Loading wake model: okay_nabu
+DEBUG:__main__:Loading stop model: /usr/lib/python3.13/site-packages/wakewords/stop.json
+DEBUG:linux_voice_assistant.zeroconf:Detected IP: 192.168.77.179
+DEBUG:__main__:Opening audio input device: Built-in Audio Stereo
+DEBUG:linux_voice_assistant.zeroconf:Zeroconf discovery enabled: AsyncServiceInfo(type='_esphomelib._tcp.local.', name='VoiceAssistant-3b-25-d7._esphomelib._tcp.local.', addresses=[b'\xc0\xa8M\xb3'], port=6053, weight=0, priority=0, server='VoiceAssistant-3b-25-d7.local.', properties={b'version': b'2025.9.0', b'mac': b'e45f013b25d7', b'board': b'host', b'platform': b'HOST', b'network': b'ethernet'}, interface_index=None)
+INFO:__main__:Server started (host=0.0.0.0, port=6053)
+INFO:linux_voice_assistant.satellite:Connected to Home Assistant
+/usr/lib/python3.13/site-packages/pymicro_wakeword/microwakeword.py:196: RuntimeWarning: invalid value encountered in cast
+DEBUG:linux_voice_assistant.satellite:Detected wake word: Okay Nabu
+DEBUG:linux_voice_assistant.satellite:Ducking music
+DEBUG:linux_voice_assistant.mpv_player:Playing /usr/lib/python3.13/site-packages/sounds/wake_word_triggered.flac
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_RUN_START, data={'url': 'http://192.168.77.254:8123/api/tts_proxy/y4SvFqCbygsz3vpxO_tivQ.mp3'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_START, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_VAD_START, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_VAD_END, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_ERROR, data={'code': 'stt-no-text-recognized', 'message': 'No text recognized'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_RUN_END, data={}
+DEBUG:linux_voice_assistant.satellite:Unducking music
+DEBUG:linux_voice_assistant.satellite:TTS response finished
+DEBUG:linux_voice_assistant.satellite:Detected wake word: Okay Nabu
+DEBUG:linux_voice_assistant.satellite:Ducking music
+DEBUG:linux_voice_assistant.mpv_player:Playing /usr/lib/python3.13/site-packages/sounds/wake_word_triggered.flac
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_RUN_START, data={'url': 'http://192.168.77.254:8123/api/tts_proxy/gqE6r21T-CRLVdqVBexsVQ.mp3'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_START, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_VAD_START, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_VAD_END, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_END, data={'text': 'Apaga saludo.'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_INTENT_START, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_INTENT_END, data={'conversation_id': '01KAC395P0WE6PK596DW3X5V18', 'continue_conversation': '0'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_TTS_START, data={'text': 'Lo siento, no conozco ningún área llamada saludo'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_TTS_END, data={'url': 'http://192.168.77.254:8123/api/tts_proxy/gqE6r21T-CRLVdqVBexsVQ.mp3'}
+DEBUG:linux_voice_assistant.satellite:Playing TTS response: http://192.168.77.254:8123/api/tts_proxy/gqE6r21T-CRLVdqVBexsVQ.mp3
+DEBUG:linux_voice_assistant.mpv_player:Playing http://192.168.77.254:8123/api/tts_proxy/gqE6r21T-CRLVdqVBexsVQ.mp3
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_RUN_END, data={}
+DEBUG:linux_voice_assistant.satellite:Unducking music
+DEBUG:linux_voice_assistant.satellite:TTS response finished
+DEBUG:linux_voice_assistant.satellite:Detected wake word: Okay Nabu
+DEBUG:linux_voice_assistant.satellite:Ducking music
+DEBUG:linux_voice_assistant.mpv_player:Playing /usr/lib/python3.13/site-packages/sounds/wake_word_triggered.flac
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_RUN_START, data={'url': 'http://192.168.77.254:8123/api/tts_proxy/gN-GsoriY0nuyyXe1PEgAw.mp3'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_START, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_VAD_START, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_VAD_END, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_END, data={'text': 'Apaga salón.'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_INTENT_START, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_INTENT_END, data={'conversation_id': '01KAC395P0WE6PK596DW3X5V18', 'continue_conversation': '0'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_TTS_START, data={'text': 'salón se ha apagado'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_TTS_END, data={'url': 'http://192.168.77.254:8123/api/tts_proxy/gN-GsoriY0nuyyXe1PEgAw.mp3'}
+DEBUG:linux_voice_assistant.satellite:Playing TTS response: http://192.168.77.254:8123/api/tts_proxy/gN-GsoriY0nuyyXe1PEgAw.mp3
+DEBUG:linux_voice_assistant.mpv_player:Playing http://192.168.77.254:8123/api/tts_proxy/gN-GsoriY0nuyyXe1PEgAw.mp3
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_RUN_END, data={}
+DEBUG:linux_voice_assistant.satellite:Unducking music
+DEBUG:linux_voice_assistant.satellite:TTS response finished
+DEBUG:linux_voice_assistant.satellite:Detected wake word: Okay Nabu
+DEBUG:linux_voice_assistant.satellite:Ducking music
+DEBUG:linux_voice_assistant.mpv_player:Playing /usr/lib/python3.13/site-packages/sounds/wake_word_triggered.flac
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_RUN_START, data={'url': 'http://192.168.77.254:8123/api/tts_proxy/nCi3VHhPEpWf4FVFrHrpUQ.mp3'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_START, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_VAD_START, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_VAD_END, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_END, data={'text': 'Enciendes al horno.'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_INTENT_START, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_INTENT_END, data={'conversation_id': '01KAC395P0WE6PK596DW3X5V18', 'continue_conversation': '0'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_TTS_START, data={'text': 'Lo siento, no he entendido'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_TTS_END, data={'url': 'http://192.168.77.254:8123/api/tts_proxy/nCi3VHhPEpWf4FVFrHrpUQ.mp3'}
+DEBUG:linux_voice_assistant.satellite:Playing TTS response: http://192.168.77.254:8123/api/tts_proxy/nCi3VHhPEpWf4FVFrHrpUQ.mp3
+DEBUG:linux_voice_assistant.mpv_player:Playing http://192.168.77.254:8123/api/tts_proxy/nCi3VHhPEpWf4FVFrHrpUQ.mp3
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_RUN_END, data={}
+DEBUG:linux_voice_assistant.satellite:Unducking music
+DEBUG:linux_voice_assistant.satellite:TTS response finished
+DEBUG:linux_voice_assistant.satellite:Detected wake word: Okay Nabu
+DEBUG:linux_voice_assistant.satellite:Ducking music
+DEBUG:linux_voice_assistant.mpv_player:Playing /usr/lib/python3.13/site-packages/sounds/wake_word_triggered.flac
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_RUN_START, data={'url': 'http://192.168.77.254:8123/api/tts_proxy/IjHC7nhk3Cag9EPK9Wwsfw.mp3'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_START, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_VAD_START, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_VAD_END, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_STT_END, data={'text': 'Enciende salón.'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_INTENT_START, data={}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_INTENT_END, data={'conversation_id': '01KAC395P0WE6PK596DW3X5V18', 'continue_conversation': '0'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_TTS_START, data={'text': 'salón se ha encendido'}
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_TTS_END, data={'url': 'http://192.168.77.254:8123/api/tts_proxy/IjHC7nhk3Cag9EPK9Wwsfw.mp3'}
+DEBUG:linux_voice_assistant.satellite:Playing TTS response: http://192.168.77.254:8123/api/tts_proxy/IjHC7nhk3Cag9EPK9Wwsfw.mp3
+DEBUG:linux_voice_assistant.mpv_player:Playing http://192.168.77.254:8123/api/tts_proxy/IjHC7nhk3Cag9EPK9Wwsfw.mp3
+DEBUG:linux_voice_assistant.satellite:Voice event: type=VOICE_ASSISTANT_RUN_END, data={}
+DEBUG:linux_voice_assistant.satellite:Unducking music
+DEBUG:linux_voice_assistant.satellite:TTS response finished
