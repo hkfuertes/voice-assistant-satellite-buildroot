@@ -42,12 +42,13 @@ endef
 
 LINUX_VOICE_ASSISTANT_POST_PATCH_HOOKS += LINUX_VOICE_ASSISTANT_LINK_TFLITE
 
-define PYTHON_LINUX_VOICE_ASSISTANT_INSTALL_INIT
-    mkdir -p $(TARGET_DIR)/etc/init.d
-	$(INSTALL) -D -m 0755 $(LINUX_VOICE_ASSISTANT_PKGDIR)/files/S95linux-voice-assistant.sh \
-		$(TARGET_DIR)/etc/init.d/S95linux-voice-assistant
+# Only install init script if wrapper is NOT enabled
+ifndef BR2_PACKAGE_LINUX_VOICE_ASSISTANT_WRAPPER
+define LINUX_VOICE_ASSISTANT_INSTALL_INIT_SYSV
+    $(INSTALL) -D -m 0755 $(LINUX_VOICE_ASSISTANT_PKGDIR)/files/S95linux-voice-assistant.sh \
+        $(TARGET_DIR)/etc/init.d/S95linux-voice-assistant
 endef
+endif
 
-LINUX_VOICE_ASSISTANT_POST_INSTALL_TARGET_HOOKS += PYTHON_LINUX_VOICE_ASSISTANT_INSTALL_INIT
 
 $(eval $(python-package))
