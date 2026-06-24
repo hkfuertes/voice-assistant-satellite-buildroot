@@ -63,6 +63,26 @@ config BR2_PACKAGE_LINUX_VOICE_ASSISTANT_AUDIO_OUTPUT
 	  MPV output device name. Leave empty for default.
 	  Use 'mpv --audio-device=help' to list available devices.
 
+config BR2_PACKAGE_LINUX_VOICE_ASSISTANT_MIC_AUTO_GAIN
+	int "Microphone automatic gain control level (WebRTC AGC, 0=off)"
+	default 0
+	range 0 31
+	depends on BR2_PACKAGE_PYTHON_WEBRTC_NOISE_GAIN_WHEEL
+	help
+	  WebRTC automatic gain control level for the microphone input.
+	  0 disables AGC; 1-31 sets the target dBFS level (upstream --mic-auto-gain).
+	  Requires webrtc-noise-gain (aarch64 / x86_64 only).
+
+config BR2_PACKAGE_LINUX_VOICE_ASSISTANT_MIC_NOISE_SUPPRESSION
+	int "Microphone noise suppression level (WebRTC NS, 0=off)"
+	default 0
+	range 0 4
+	depends on BR2_PACKAGE_PYTHON_WEBRTC_NOISE_GAIN_WHEEL
+	help
+	  WebRTC noise suppression level for the microphone input.
+	  0 disables NS; 1-4 sets suppression aggressiveness (upstream --mic-noise-suppression).
+	  Requires webrtc-noise-gain (aarch64 / x86_64 only).
+
 endif
 
 comment "linux-voice-assistant needs Python3"
