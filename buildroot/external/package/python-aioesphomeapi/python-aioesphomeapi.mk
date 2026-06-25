@@ -10,6 +10,7 @@ PYTHON_AIOESPHOMEAPI_LICENSE = MIT
 PYTHON_AIOESPHOMEAPI_LICENSE_FILES = LICENSE
 PYTHON_AIOESPHOMEAPI_SETUP_TYPE = setuptools
 PYTHON_AIOESPHOMEAPI_DEPENDENCIES = python3 \
+	host-python-cython \
 	python-protobuf \
 	python-zeroconf \
 	python-cryptography \

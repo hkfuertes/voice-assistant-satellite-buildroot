@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Miguel Fuertes <hkfuertes@gmail.com>
+Date: Thu, 25 Jun 2026 01:20:00 +0000
+Subject: [PATCH] Relax build-system requirements
+
+Buildroot 2025.08 ships host setuptools 80.9.0 and Cython 3.1.2.
+Those versions are sufficient to build aioesphomeapi 45.3.1 here, so
+relax the package's declared build requirements to match the Buildroot
+host tools instead of downloading newer ones during the offline build.
+
+Upstream: Not applicable [Buildroot host-tool constraint]
+Signed-off-by: Miguel Fuertes <hkfuertes@gmail.com>
+---
+ pyproject.toml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -128,7 +128,7 @@ known_first_party = [
+ split-on-trailing-comma = false
+ 
+ [build-system]
+-requires = ['setuptools>=82.0.1', 'wheel', 'Cython>=3.2.5']
++requires = ['setuptools>=80.9.0', 'wheel', 'Cython>=3.1.2']
+ 
+ [tool.pytest.ini_options]
+ asyncio_mode = "auto"
