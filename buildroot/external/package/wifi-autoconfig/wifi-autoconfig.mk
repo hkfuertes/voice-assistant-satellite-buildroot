@@ -15,7 +15,7 @@ define WIFI_AUTOCONFIG_INSTALL_TARGET_CMDS
 		$(TARGET_DIR)/etc/modprobe.d/brcmfmac.conf
 	
 	test -f $(@D)/wpa_supplicant.conf && \
-		$(INSTALL) -D -m 0600 $(@d)/wpa_supplicant.conf \
+		$(INSTALL) -D -m 0600 $(@D)/wpa_supplicant.conf \
 		$(TARGET_DIR)/etc/wpa_supplicant.conf || true
 endef
 

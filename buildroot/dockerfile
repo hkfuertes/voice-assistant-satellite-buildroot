@@ -13,7 +13,7 @@ WORKDIR /home/builder
 
 RUN git clone https://git.buildroot.net/buildroot && \
     cd buildroot && \
-    git checkout 2025.08.x
+    git checkout 2026.05.x
 
 WORKDIR /home/builder/buildroot
 

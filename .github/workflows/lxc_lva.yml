@@ -20,7 +20,7 @@ jobs:
         run: |
           git clone https://git.buildroot.net/buildroot sources
           cd sources
-          git checkout 2025.08.x
+          git checkout 2026.05.x
 
       - name: Set BR2_EXTERNAL
         run: echo "BR2_EXTERNAL=${{ github.workspace }}/buildroot/external" >> $GITHUB_ENV

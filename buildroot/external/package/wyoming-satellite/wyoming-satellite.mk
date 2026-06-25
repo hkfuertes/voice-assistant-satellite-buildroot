@@ -14,7 +14,7 @@ WYOMING_SATELLITE_DEPENDENCIES = \
 	host-python3 \
 	host-python-pip \
 	python-spidev \
-	python-numpy-wheel \
+	python-numpy \
 	python-zeroconf \
 	python-wyoming \
 	python-pyring-buffer

@@ -6,6 +6,7 @@
 NAME="linux-voice-assistant"
 DAEMON="/usr/bin/python3"
 PIDFILE="/var/run/$NAME.pid"
+LOGFILE="/var/log/$NAME.log"
 
 # Build name with hostname and MAC suffix (if wlan0 exists)
 if [ -e /sys/class/net/wlan0/address ]; then
@@ -46,21 +47,27 @@ fi
 
 start() {
     echo -n "Starting $NAME: "
-    
+
     # Ensure audio devices are ready
     sleep 1
-    
-    start-stop-daemon -S -q -b -m -p "$PIDFILE" \
-        --exec $DAEMON -- $DAEMON_ARGS
-    
-    [ $? = 0 ] && echo "OK" || echo "FAIL"
+
+    mkdir -p "$(dirname "$LOGFILE")"
+    echo "=== $(date) starting $NAME: $DAEMON $DAEMON_ARGS ===" >> "$LOGFILE"
+    PYTHONUNBUFFERED=1 $DAEMON $DAEMON_ARGS >> "$LOGFILE" 2>&1 &
+    echo $! > "$PIDFILE"
+
+    kill -0 "$(cat "$PIDFILE")" 2>/dev/null && echo "OK" || echo "FAIL"
 }
 
 stop() {
     echo -n "Stopping $NAME: "
-    start-stop-daemon -K -q -p "$PIDFILE"
-    [ $? = 0 ] && echo "OK" || echo "FAIL"
-    rm -f "$PIDFILE"
+    if [ -f "$PIDFILE" ]; then
+        kill "$(cat "$PIDFILE")" 2>/dev/null || true
+        rm -f "$PIDFILE"
+        echo "OK"
+    else
+        echo "OK"
+    fi
 }
 
 restart() {
