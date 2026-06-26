@@ -1,20 +1,14 @@
 ## Simple Buildroot image for Voice Assistant Satellite for HomeAssistant
 
-This project provides minimal Buildroot-based images for running Linux Voice Assistant satellites on embedded devices, optimized for low-resource ARM devices.
-
-Also, as the work was already done... an _(amd64)_ `rootfs.tar` is also created to import to proxmox and use with a usb microphone/speaker.
+This project provides a minimal Buildroot-based image for running Linux Voice Assistant on a Raspberry Pi with a Respeaker v1 (WM8960) hat.
 
 ### Supported Devices
 
 | Device | Solution | Hardware | `defconfig` | Comments |
 |--------|----------|----------|-------------|----------|
 | pi02w/pi3 | **Linux Voice Assistant** | Respeaker v1 (WM8960) | `lva_wm8960hat_pi_3_02w_defconfig` | `fd4c1d972bc87e6d7a0dddc5aa52465243d63265`<br/> _**Latest commit (2025-11-11)**_|
-| pi02w/pi3 | **Linux Voice Assistant** | eMeet USB Conference Mic/Speaker | `lva_usb_pi_3_02w_defconfig` |  |
-| proxmox/lxc | **Linux Voice Assistant** | eMeet USB Conference Mic/Speaker | `lva_usb_amd64_lxc_defconfig` |  |
 
-> Notes:
-> - See mk/config [package](buildroot/external/package/linux-voice-assistant/) folder to change PRs accordingly: Commented is the last commit with `sounddevice` that does not require `pulse`.
-> - See [proxmox/post-build](buildroot/external/board/proxmox/post-build.sh) to see an example of `lxc.conf` mounts.
+> Note: See mk/config [package](buildroot/external/package/linux-voice-assistant/) folder to change PRs accordingly. Commented is the last commit with `sounddevice` that does not require `pulse`.
 
 ### Build
 
