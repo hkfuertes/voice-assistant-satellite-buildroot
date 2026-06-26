@@ -1,6 +1,0 @@
-config BR2_PACKAGE_PYTHON_PYRING_BUFFER
-	bool "python-pyring-buffer"
-	depends on BR2_PACKAGE_PYTHON3
-	help
-	  Pure Python ring/circular buffer for bytes
-	  https://github.com/rhasspy/pyring-buffer
