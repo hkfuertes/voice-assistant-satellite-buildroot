@@ -23,7 +23,7 @@ lva-wm8960: image
 		-v $(OUTPUT_VOLUME):/home/builder/buildroot/out \
 		-v "$(CURDIR)/buildroot:/repo" \
 		-e BR2_EXTERNAL=/repo/external \
-		$(IMAGE) bash -lc 'set -o pipefail; rm -f out/build/wifi-autoconfig-*/.stamp_* 2>/dev/null || true; make O=out $(DEFCONFIG) && make O=out -j$$(nproc) && cp -f out/images/sdcard.img.xz /repo/$(ARTIFACT)'
+		$(IMAGE) bash -lc 'set -o pipefail; rm -f out/build/wifi-autoconfig-*/.stamp_* 2>/dev/null || true; make O=out $(DEFCONFIG) && make O=out BR2_JLEVEL=$$(nproc) && cp -f out/images/sdcard.img.xz /repo/$(ARTIFACT)'
 
 shell: image
 	docker volume create $(DL_VOLUME) >/dev/null
