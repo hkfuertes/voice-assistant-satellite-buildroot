@@ -1,0 +1,14 @@
+config BR2_PACKAGE_PYTHON_NETIFACES2_WHEEL
+	bool "python-netifaces2-wheel"
+	depends on BR2_PACKAGE_PYTHON3
+	depends on BR2_aarch64 || BR2_arm || BR2_x86_64
+	help
+	  Precompiled wheel for netifaces2, a maintained fork of netifaces.
+	  Provides network interface information (addresses, flags, etc.).
+
+	  Supports: aarch64, armv7l, x86_64 (cp37-abi3 stable ABI wheels).
+
+	  https://pypi.org/project/netifaces2/
+
+comment "python-netifaces2-wheel needs aarch64, arm or x86_64"
+	depends on !BR2_aarch64 && !BR2_arm && !BR2_x86_64

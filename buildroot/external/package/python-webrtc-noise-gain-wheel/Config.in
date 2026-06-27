@@ -1,0 +1,16 @@
+config BR2_PACKAGE_PYTHON_WEBRTC_NOISE_GAIN_WHEEL
+	bool "python-webrtc-noise-gain-wheel"
+	depends on BR2_PACKAGE_PYTHON3
+	depends on BR2_aarch64 || BR2_x86_64
+	help
+	  Precompiled wheel for webrtc-noise-gain, Python bindings for the
+	  WebRTC noise suppression and automatic gain control algorithms.
+	  Used by LVA microphone processing when enabled.
+
+	  Supports: aarch64, x86_64 (cp39-abi3 stable ABI wheels).
+	  No armv7l wheel is published upstream; arm 32-bit is unsupported.
+
+	  https://pypi.org/project/webrtc-noise-gain/
+
+comment "python-webrtc-noise-gain-wheel needs aarch64 or x86_64 (no armv7l wheel upstream)"
+	depends on !BR2_aarch64 && !BR2_x86_64

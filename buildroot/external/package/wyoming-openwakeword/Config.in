@@ -1,9 +1,0 @@
-config BR2_PACKAGE_WYOMING_OPENWAKEWORD
-	bool "wyoming-openwakeword"
-	depends on BR2_PACKAGE_PYTHON3
-	select BR2_PACKAGE_PYTHON_NUMPY_WHEEL
-	select BR2_PACKAGE_PYTHON_PYOPENWAKEWORD
-	select BR2_PACKAGE_PYTHON_WYOMING
-	help
-	  Wyoming server for openWakeWord with isolated wyoming 1.8
-	  https://github.com/rhasspy/wyoming-openwakeword

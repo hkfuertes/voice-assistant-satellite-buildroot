@@ -1,0 +1,8 @@
+config BR2_PACKAGE_PYTHON_GETMAC
+	bool "python-getmac"
+	depends on BR2_PACKAGE_PYTHON3
+	help
+	  Pure-Python library to get the MAC address of a local or
+	  remote host.
+
+	  https://pypi.org/project/getmac/

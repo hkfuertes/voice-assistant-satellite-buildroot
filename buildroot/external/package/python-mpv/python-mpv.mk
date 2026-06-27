@@ -14,7 +14,7 @@ PYTHON_MPV_DEPENDENCIES = python3 mpv
 # Fix library path for embedded Linux without ldconfig
 define PYTHON_MPV_FIX_LIBRARY_PATH
 	sed -i '/sofile = ctypes.util.find_library/,/backend = CDLL(sofile)/c\    backend = CDLL("libmpv.so.2")' \
-		$(TARGET_DIR)/usr/lib/python3.13/site-packages/mpv.py
+		$(TARGET_DIR)/usr/lib/python$(PYTHON3_VERSION_MAJOR)/site-packages/mpv.py
 endef
 
 PYTHON_MPV_POST_INSTALL_TARGET_HOOKS += PYTHON_MPV_FIX_LIBRARY_PATH

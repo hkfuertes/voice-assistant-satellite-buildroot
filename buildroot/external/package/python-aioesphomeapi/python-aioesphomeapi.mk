@@ -4,12 +4,13 @@
 #
 ################################################################################
 
-PYTHON_AIOESPHOMEAPI_VERSION = 42.7.0
+PYTHON_AIOESPHOMEAPI_VERSION = 45.3.1
 PYTHON_AIOESPHOMEAPI_SITE = $(call github,esphome,aioesphomeapi,v$(PYTHON_AIOESPHOMEAPI_VERSION))
 PYTHON_AIOESPHOMEAPI_LICENSE = MIT
 PYTHON_AIOESPHOMEAPI_LICENSE_FILES = LICENSE
 PYTHON_AIOESPHOMEAPI_SETUP_TYPE = setuptools
 PYTHON_AIOESPHOMEAPI_DEPENDENCIES = python3 \
+	host-python-cython \
 	python-protobuf \
 	python-zeroconf \
 	python-cryptography \
