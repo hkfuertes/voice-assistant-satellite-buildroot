@@ -4,6 +4,8 @@ Buildroot image for Linux Voice Assistant on Raspberry Pi Zero 2 W / Raspberry P
 
 ![LVA Buildroot hardware](docs/assets/voice-satellite.jpg)
 
+Case in the photo: [Voice Assistant Wyoming Satellite on MakerWorld](https://makerworld.com/en/models/1232745-voice-assistant-wyoming-satellite?from=search#profileId-1251755)
+
 ## What this repo actually is
 
 This is a Buildroot external tree plus a Docker-based build wrapper. It builds a small Raspberry Pi image that starts [`linux-voice-assistant`](https://github.com/OHF-Voice/linux-voice-assistant) at boot and exposes it to Home Assistant over the ESPHome native API.
